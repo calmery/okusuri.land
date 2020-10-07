@@ -45,6 +45,7 @@
       "npm run fix"
     ]
   },
+  "private": true,
   "scripts": {
     "fix": "run-s fix:eslint fix:prettier",
     "fix:eslint": "eslint --ext .ts --fix --ignore-path .gitignore .",
