@@ -50,6 +50,7 @@
     "fix": "run-s fix:eslint fix:prettier",
     "fix:eslint": "eslint --ext .ts --fix --ignore-path .gitignore .",
     "fix:prettier": "prettier --ignore-path .gitignore --write .",
+    "heroku-postbuild": "tsc",
     "start": "tsc -w"
   }
 }

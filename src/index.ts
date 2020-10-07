@@ -1,9 +1,9 @@
 import * as http from "http";
-import { server as Server } from "websocket";
 
-const httpServer = http.createServer();
+const httpServer = http.createServer((request, response) => {
+  console.log(new Date(), "Received request for", request.url);
+  response.writeHead(200);
+  response.end();
+});
+
 httpServer.listen(process.env.PORT || 8000);
-
-const server = new Server({ httpServer, autoAcceptConnections: true });
-
-// server.on("request", (request) => {})
