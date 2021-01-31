@@ -20,12 +20,10 @@
   "name": "okusuri.land",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
     "lint": "run-s lint:eslint lint:prettier",
     "lint:eslint": "eslint --ext .ts --fix --ignore-path .gitignore .",
     "lint:prettier": "prettier --ignore-path .gitignore --write .",
-    "start": "next start"
+    "watch": "next dev"
   },
   "version": "0.1.0"
 }
