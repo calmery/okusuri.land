@@ -27,7 +27,7 @@ jobs:
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
           path: "**/node_modules"
       - run: npm ci
-      - run: eslint --ext .ts --fix --ignore-path .gitignore .
+      - run: npx eslint --ext .ts --fix --ignore-path .gitignore .
 
 name: Build And Lint
 
