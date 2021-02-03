@@ -1,25 +1,7 @@
-import { useCallback, useEffect } from "react";
-import { firebase } from "../utils/firebase";
-import { useUser } from "../hooks/userUser";
+import { logIn } from "../utils/authentication";
 
-const Index: React.FC = () => {
-  const { user } = useUser();
-
-  // Events
-
-  const handleClickLogInButton = useCallback(() => {
-    firebase.auth().signInWithRedirect(new firebase.auth.TwitterAuthProvider());
-  }, []);
-
-  // Side Effects
-
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
-  // Render
-
-  return <button onClick={handleClickLogInButton}>Log in with Twitter</button>;
-};
+const Index: React.FC = () => (
+  <button onClick={logIn}>Log in with Twitter</button>
+);
 
 export default Index;

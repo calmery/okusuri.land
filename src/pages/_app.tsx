@@ -1,12 +1,12 @@
 import { AppProps } from "next/app";
-import { FirebaseAuthenticationProvider } from "../contexts/FirebaseAuthentication";
+import { AuthenticationProvider } from "../contexts/Authentication";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <FirebaseAuthenticationProvider>
+    <AuthenticationProvider>
       <Component {...pageProps} />
-    </FirebaseAuthenticationProvider>
+    </AuthenticationProvider>
   );
 }
 
