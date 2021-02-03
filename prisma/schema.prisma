@@ -19,7 +19,7 @@ model User {
 }
 
 model UserProfile {
-  id         Int @id @default(autoincrement())
+  id         Int @id
   image　　   String
   name       String
   screenName String
