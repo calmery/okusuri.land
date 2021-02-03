@@ -9,3 +9,11 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+model User {
+  id                String @id
+  accessToken       String
+  accessTokenSecret String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
