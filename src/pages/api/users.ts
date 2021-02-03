@@ -7,17 +7,18 @@ import {
   UserCredential,
   UserProfile,
 } from "../../domains/authentication/models";
-import { parse } from "../../utils/json";
 
 // Firebase Admin
 
-admin.initializeApp({
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-});
+if (!admin.apps.length) {
+  admin.initializeApp({
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  });
+}
 
 // Helper Functions
 
-const getTwitterAccountVerifyCredentials = ({
+const getUserProfileFromTwitter = ({
   accessToken,
   accessTokenSecret,
 }: UserCredential): Promise<UserProfile> =>
@@ -35,7 +36,7 @@ const getTwitterAccountVerifyCredentials = ({
       }
 
       resolve({
-        id: data.id,
+        id: `${data.id}`,
         image: data.profile_image_url_https,
         name: data.name,
         screenName: data.screen_name,
@@ -63,7 +64,7 @@ const verifyUser = async ({
 
 const prisma = new PrismaClient();
 
-const upsertUser = async (userId: string, userCredential: UserCredential) =>
+const upsertUser = (userId: string, userCredential: UserCredential) =>
   prisma.user.upsert({
     where: {
       id: userId,
@@ -75,45 +76,42 @@ const upsertUser = async (userId: string, userCredential: UserCredential) =>
     },
   });
 
-const upsertUserProfile = async (
-  userId: string,
-  userCredential: UserCredential
-) => {
-  const profile = await getTwitterAccountVerifyCredentials(userCredential);
-
-  return prisma.userProfile.upsert({
+const upsertUserProfile = (userId: string, userProfile: UserProfile) =>
+  prisma.userProfile.upsert({
     where: {
       userId,
     },
     create: {
-      ...profile,
+      ...userProfile,
       userId,
     },
-    update: profile,
+    update: userProfile,
   });
-};
 
 // CRUD
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
-  const userCredential = parse<UserCredential>(request.body);
+  const userCredential = request.body as UserCredential;
   const userId = await verifyUser(request.headers);
 
-  if (!userCredential || !userId) {
+  if (
+    !userCredential.accessToken ||
+    !userCredential.accessTokenSecret ||
+    !userId
+  ) {
     return response.status(400).end();
   }
 
-  const [_, profile] = await prisma.$transaction([
+  const userProfile = await getUserProfileFromTwitter(userCredential);
+
+  const result = await prisma.$transaction([
     upsertUser(userId, userCredential),
-    upsertUserProfile(userId, userCredential),
+    upsertUserProfile(userId, userProfile),
   ]);
 
-  response.send({
-    id: profile.id,
-    image: profile.image,
-    name: profile.name,
-    screenName: profile.screenName,
-  } as UserProfile);
+  console.log(result);
+
+  response.send(userProfile);
 };
 
 // Serverless Functions
