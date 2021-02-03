@@ -1,13 +1,15 @@
 import { AppProps } from "next/app";
-import { AuthenticationProvider } from "../contexts/Authentication";
+import React from "react";
+import { Provider } from "react-redux";
+import { store } from "../domains";
 import "../styles/globals.css";
 
-function MyApp({ Component, pageProps }: AppProps) {
+const App = ({ Component, pageProps }: AppProps) => {
   return (
-    <AuthenticationProvider>
+    <Provider store={store}>
       <Component {...pageProps} />
-    </AuthenticationProvider>
+    </Provider>
   );
-}
+};
 
-export default MyApp;
+export default App;
