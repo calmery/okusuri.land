@@ -104,7 +104,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   const userProfile = await getUserProfileFromTwitter(userCredential);
 
-  const result = await prisma.$transaction([
+  await prisma.$transaction([
     upsertUser(userId, userCredential),
     upsertUserProfile(userId, userProfile),
   ]);
