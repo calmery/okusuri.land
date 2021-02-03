@@ -19,7 +19,7 @@ model User {
 }
 
 model UserProfile {
-  id         Int @id
+  id         String @id
   image　　   String
   name       String
   screenName String @unique

@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "UserProfile" (
-    "id" INTEGER NOT NULL,
+    "id" TEXT NOT NULL,
     "image" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "screenName" TEXT NOT NULL,
