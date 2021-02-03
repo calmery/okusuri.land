@@ -9,6 +9,11 @@ const prisma = new PrismaClient();
 
 const get = async (request: VercelRequest, response: VercelResponse) => {
   const screenName = request.query.screenName as string;
+
+  if (!screenName.startsWith("@")) {
+    return response.status(400).end();
+  }
+
   const userProfile = await prisma.userProfile.findFirst({
     orderBy: {
       // Twitter の screen_name の変更によって既存の UserProfile と screen_name が重複する可能性がある
@@ -18,7 +23,7 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
     },
     where: {
       screenName: {
-        equals: screenName.startsWith("@") ? screenName.slice(1) : screenName,
+        equals: screenName.slice(1),
       },
     },
   });
