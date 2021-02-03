@@ -22,7 +22,7 @@ model UserProfile {
   id         String @id
   image　　   String
   name       String
-  screenName String @unique
+  screenName String
   user       User @relation(fields: [userId], references: [id])
   userId     String @unique
   createdAt  DateTime @default(now())

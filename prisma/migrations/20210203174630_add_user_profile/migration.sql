@@ -12,9 +12,6 @@ CREATE TABLE "UserProfile" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "UserProfile.screenName_unique" ON "UserProfile"("screenName");
-
--- CreateIndex
 CREATE UNIQUE INDEX "UserProfile.userId_unique" ON "UserProfile"("userId");
 
 -- CreateIndex
