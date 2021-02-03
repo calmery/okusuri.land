@@ -33,10 +33,12 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
   }
 
   response.send({
-    id: userProfile.id,
-    image: userProfile.image,
-    name: userProfile.name,
-    screenName: userProfile.screenName,
+    data: {
+      id: userProfile.id,
+      image: userProfile.image,
+      name: userProfile.name,
+      screenName: userProfile.screenName,
+    },
   });
 };
 
