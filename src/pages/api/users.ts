@@ -109,8 +109,6 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     upsertUserProfile(userId, userProfile),
   ]);
 
-  console.log(result);
-
   response.send(userProfile);
 };
 
