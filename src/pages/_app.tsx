@@ -8,6 +8,11 @@ import "../styles/globals.css";
 
 const App = ({ Component, pageProps }: AppProps) => {
   useEffect(() => {
+    document.oncontextmenu = () => {
+      alert("右クリックは禁止です！");
+      return false;
+    };
+
     firebase.auth().onAuthStateChanged(async () => {
       await store.dispatch(actions.refreshToken());
       await store.dispatch(actions.refreshProfile());
