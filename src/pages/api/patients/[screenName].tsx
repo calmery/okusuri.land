@@ -7,13 +7,7 @@ const prisma = new PrismaClient();
 
 // CRUD
 
-const get = async (request: VercelRequest, response: VercelResponse) => {
-  const screenName = request.query.screenName as string;
-
-  if (!screenName.startsWith("@")) {
-    return response.status(400).end();
-  }
-
+const get = async ({ query }: VercelRequest, response: VercelResponse) => {
   const userProfile = await prisma.userProfile.findFirst({
     include: { medicines: true },
     orderBy: {
@@ -24,7 +18,7 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
     },
     where: {
       screenName: {
-        equals: screenName.slice(1),
+        equals: query.screenName as string,
       },
     },
   });

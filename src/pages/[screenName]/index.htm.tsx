@@ -12,14 +12,14 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   const screenName = query.screenName as string;
 
-  if (!screenName.startsWith("@")) {
-    res.setHeader("Location", `/patients/@${screenName}`);
+  if (!screenName.startsWith("~")) {
+    res.setHeader("Location", `/~${screenName}/index.htm`);
     res.statusCode = 301;
     res.end();
   }
 
   const { data } = await get<ApiResponse<UserProfile>>(
-    `/patients/${screenName}`
+    `/patients/${screenName.slice(1)}`
   );
 
   return {
