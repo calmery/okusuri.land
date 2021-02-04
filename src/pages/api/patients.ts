@@ -109,7 +109,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     upsertUserProfile(userId, userProfile),
   ]);
 
-  response.send(userProfile);
+  response.send({ data: userProfile });
 };
 
 // Serverless Functions
