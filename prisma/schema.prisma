@@ -21,6 +21,7 @@ model User {
 model UserProfile {
   id         String @id
   image      String
+  medicines  Medicine[]
   name       String
   screenName String
   user       User @relation(fields: [userId], references: [id])
@@ -30,4 +31,13 @@ model UserProfile {
 
   @@index(screenName)
   @@index(userId)
+}
+
+model Medicine {
+  id            Int         @default(autoincrement()) @id
+  medicineId    String
+  userProfile   UserProfile @relation(fields: [userProfileId], references: [id])
+  userProfileId String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
