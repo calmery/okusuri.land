@@ -20,7 +20,7 @@ model User {
 
 model UserProfile {
   id         String @id
-  image　　   String
+  image      String
   name       String
   screenName String
   user       User @relation(fields: [userId], references: [id])
