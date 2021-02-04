@@ -1,11 +1,12 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { request, gql } from "graphql-request";
+import { gql } from "graphql-request";
+import * as cache from "../../utils/cache";
+import * as cms from "../../utils/cms";
 
-// CRUD
+// Helper Functions
 
-const get = async (_: VercelRequest, response: VercelResponse) => {
-  const data = await request(
-    process.env.GRAPHCMS_URL!,
+const getDepartments = () =>
+  cms.request(
     gql`
       {
         departments {
@@ -33,6 +34,13 @@ const get = async (_: VercelRequest, response: VercelResponse) => {
         }
       }
     `
+  );
+
+// CRUD
+
+const get = async (_: VercelRequest, response: VercelResponse) => {
+  const data = JSON.parse(
+    await cache.setnx(cache.key("departments"), getDepartments)
   );
 
   response.send({ data });

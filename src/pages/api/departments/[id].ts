@@ -1,12 +1,12 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { request, gql } from "graphql-request";
+import { gql } from "graphql-request";
+import * as cache from "../../../utils/cache";
+import * as cms from "../../../utils/cms";
 
-// CRUD
+// Helper Functions
 
-const get = async ({ query }: VercelRequest, response: VercelResponse) => {
-  const id = encodeURIComponent(query.id as string);
-  const data = await request(
-    process.env.GRAPHCMS_URL!,
+const getDepartment = async <T extends unknown>(id: string): Promise<T> =>
+  cms.request(
     gql`
       {
         department(where: { id: "${id}" }) {
@@ -32,7 +32,17 @@ const get = async ({ query }: VercelRequest, response: VercelResponse) => {
     `
   );
 
-  response.send({ data });
+// CRUD
+
+const get = async ({ query }: VercelRequest, response: VercelResponse) => {
+  const id = encodeURIComponent(query.id as string);
+  const data = JSON.parse(
+    await cache.setnx(cache.key("department", id), () => getDepartment(id))
+  );
+
+  response.send({
+    data,
+  });
 };
 
 // Serverless Functions
