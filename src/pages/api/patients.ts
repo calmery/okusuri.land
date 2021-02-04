@@ -21,7 +21,7 @@ if (!admin.apps.length) {
 const getUserProfileFromTwitter = ({
   accessToken,
   accessTokenSecret,
-}: UserCredential): Promise<UserProfile> =>
+}: UserCredential): Promise<Omit<UserProfile, "medicines">> =>
   new Promise((resolve, reject) => {
     const twitter = new Twitter({
       consumer_key: process.env.TWITTER_API_KEY!,
@@ -76,7 +76,10 @@ const upsertUser = (userId: string, userCredential: UserCredential) =>
     },
   });
 
-const upsertUserProfile = (userId: string, userProfile: UserProfile) =>
+const upsertUserProfile = (
+  userId: string,
+  userProfile: Omit<UserProfile, "medicines">
+) =>
   prisma.userProfile.upsert({
     where: {
       userId,

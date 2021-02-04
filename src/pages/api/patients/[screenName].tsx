@@ -15,6 +15,7 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
   }
 
   const userProfile = await prisma.userProfile.findFirst({
+    include: { medicines: true },
     orderBy: {
       // Twitter の screen_name の変更によって既存の UserProfile と screen_name が重複する可能性がある
       // 重複自体に問題はないため、レコードが複数存在する場合を考慮して updatedAt を降順でソートする
@@ -36,6 +37,7 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
     data: {
       id: userProfile.id,
       image: userProfile.image,
+      medicines: userProfile.medicines.map(({ medicineId }) => medicineId),
       name: userProfile.name,
       screenName: userProfile.screenName,
     },
