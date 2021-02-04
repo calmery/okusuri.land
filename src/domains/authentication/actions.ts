@@ -17,7 +17,7 @@ export const refreshProfile = createAsyncThunk<UserProfile | null>(
       return null;
     }
 
-    return await post<UserProfile>("/users", {
+    return await post<UserProfile>("/patients", {
       accessToken: (credential as any).accessToken,
       accessTokenSecret: (credential as any).secret,
     });
