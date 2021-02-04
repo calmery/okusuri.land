@@ -1,4 +1,5 @@
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/auth";
 import { store } from "..";
 import * as api from "../../utils/api";
 
