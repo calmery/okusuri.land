@@ -46,7 +46,7 @@ const getDepartment = async (id: string) => {
 const get = async ({ query }: VercelRequest, response: VercelResponse) => {
   const id = encodeURIComponent(query.id as string);
   const data = JSON.parse(
-    await cache.setnx(cache.key("department", id), () => getDepartment(id))
+    await cache.setnx(cache.key("departments", id), () => getDepartment(id))
   );
 
   response.send({
