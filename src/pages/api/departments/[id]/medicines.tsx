@@ -6,7 +6,7 @@ import * as cms from "../../../../utils/cms";
 
 // Helper Functions
 
-const getDepartmentMedicines = async (id: string) => {
+const getMedicinesByDepartmentId = async (id: string) => {
   const { medicines } = await cms.request<{
     medicines: Medicine[];
   }>(
@@ -34,10 +34,10 @@ const getDepartmentMedicines = async (id: string) => {
 // CRUD
 
 const get = async ({ query }: VercelRequest, response: VercelResponse) => {
-  const id = encodeURIComponent(query.id as string);
+  const departmentId = encodeURIComponent(query.id as string);
   const data = JSON.parse(
-    await cache.setnx(cache.key("department", "medicines", id), () =>
-      getDepartmentMedicines(id)
+    await cache.setnx(cache.key("departments", departmentId, "medicines"), () =>
+      getMedicinesByDepartmentId(departmentId)
     )
   );
 
