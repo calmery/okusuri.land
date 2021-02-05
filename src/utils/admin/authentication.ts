@@ -22,5 +22,11 @@ export const verify = async (
     return null;
   }
 
-  return (await admin.auth().verifyIdToken(matched[1])).uid;
+  try {
+    return (await admin.auth().verifyIdToken(matched[1])).uid;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return null;
+  }
 };
