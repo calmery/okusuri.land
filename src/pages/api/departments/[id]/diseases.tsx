@@ -1,16 +1,11 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import * as cache from "~/utils/admin/cache";
 import { getDiseasesByDepartmentId } from "~/utils/admin/cms";
 
 // CRUD
 
 const get = async ({ query }: VercelRequest, response: VercelResponse) => {
   const departmentId = encodeURIComponent(query.id as string);
-  const data = JSON.parse(
-    await cache.setnx(cache.key("departments", departmentId, "diseases"), () =>
-      getDiseasesByDepartmentId(departmentId)
-    )
-  );
+  const data = await getDiseasesByDepartmentId(departmentId);
 
   response.send({
     data,

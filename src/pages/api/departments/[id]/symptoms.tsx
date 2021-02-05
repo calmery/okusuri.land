@@ -1,21 +1,14 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import * as cache from "~/utils/admin/cache";
 import { getSymptomsByDepartmentId } from "~/utils/admin/cms";
 
 // CRUD
 
-const get = async ({ query }: VercelRequest, response: VercelResponse) => {
-  const departmentId = encodeURIComponent(query.id as string);
-  const data = JSON.parse(
-    await cache.setnx(cache.key("departments", departmentId, "symptoms"), () =>
-      getSymptomsByDepartmentId(departmentId)
-    )
-  );
-
+const get = async ({ query }: VercelRequest, response: VercelResponse) =>
   response.send({
-    data,
+    data: await getSymptomsByDepartmentId(
+      encodeURIComponent(query.id as string)
+    ),
   });
-};
 
 // Serverless Functions
 

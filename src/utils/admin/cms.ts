@@ -13,38 +13,49 @@ export const request = async <T extends unknown>(query: string): Promise<T> =>
 
 // Main
 
-export const getDiseasesByDepartmentId = async (id: string) => {
-  const { diseases } = await request<{
-    diseases: Disease[];
-  }>(
-    gql`
-      {
-        diseases(where: {
-          department: {
-            id: "${id}"
-          }
-        }) {
-          description
-          id
-          medicines {
-            description
-            icon { url }
-            id
-            name
-          }
-          name
-          symptoms {
-            description
-              id
-            key
-            value
-          }
-        }
-      }
-    `
-  );
+export const getDiseasesByDepartmentId = async (departmentId: string) => {
+  try {
+    const cache = await setnx(
+      key("cms", "get_diseases_by_department_id", departmentId),
+      () =>
+        request(
+          gql`
+            {
+              diseases(where: {
+                department: {
+                  id: "${departmentId}"
+                }
+              }) {
+                description
+                id
+                medicines {
+                  description
+                  icon { url }
+                  id
+                  name
+                }
+                name
+                symptoms {
+                  description
+                  id
+                  maximumChange
+                  key
+                  threshold
+                }
+              }
+            }
+          `
+        )
+    );
 
-  return diseases;
+    return json.parse<{
+      diseases: Disease[];
+    }>(cache)!.diseases;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return null;
+  }
 };
 
 export const getDepartment = async (id: string) => {
@@ -68,8 +79,9 @@ export const getDepartment = async (id: string) => {
             symptoms {
               description
               id
+              maximumChange
               key
-              value
+              threshold
             }
           }
           name
@@ -109,8 +121,9 @@ export const getDepartments = async () => {
             symptoms {
               description
               id
+              maximumChange
               key
-              value
+              threshold
             }
           }
           name
@@ -148,12 +161,10 @@ export const getMedicinesByDepartmentId = async (id: string) => {
   return medicines;
 };
 
-export const getSymptomKeysByDepartmentId = async (
-  departmentId: DepartmentId
-) => {
+export const getSymptomsByDepartmentId = async (departmentId: string) => {
   try {
     const cache = await setnx(
-      key("cms", "get_symptom_keys_by_department_id", departmentId),
+      key("cms", "get_symptoms_by_department_id", departmentId),
       () =>
         request(
           gql`
@@ -165,52 +176,24 @@ export const getSymptomKeysByDepartmentId = async (
                   }
                 }
               }) {
+                defaultValue
+                description
+                id
                 key
+                maximumChange
+                threshold
               }
             }
           `
         )
     );
 
-    if (!cache) {
-      return null;
-    }
-
-    const { symptoms } = json.parse<{
-      symptoms: Pick<Symptom, "key">[];
-    }>(cache)!;
-
-    return symptoms.map(({ key }) => key);
+    return json.parse<{ symptoms: Symptom[] }>(cache)!.symptoms;
   } catch (error) {
     // ToDo: Sentry にエラーを送信する
 
     return null;
   }
-};
-
-export const getSymptomsByDepartmentId = async (departmentId: string) => {
-  const { symptoms } = await request<{
-    symptoms: Symptom[];
-  }>(
-    gql`
-      {
-        symptoms(where: {
-          diseases_every: {
-            department: {
-              id: "${departmentId}"
-            }
-          }
-        }) {
-          description
-          id
-          key
-          value
-        }
-      }
-    `
-  );
-
-  return symptoms;
 };
 
 export const isDepartmentExists = async (departmentId: DepartmentId) => {
@@ -230,10 +213,6 @@ export const isDepartmentExists = async (departmentId: DepartmentId) => {
         `
         )
     );
-
-    if (!cache) {
-      return false;
-    }
 
     return !!json.parse<{ department: Department | null }>(cache)!.department;
   } catch (error) {

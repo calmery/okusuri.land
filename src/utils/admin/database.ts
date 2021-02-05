@@ -4,36 +4,49 @@ import {
   PatientRecord,
 } from "~/domains/authentication/models";
 import { DepartmentId } from "~/types/Department";
+import { DiseaseId } from "~/types/Disease";
 
 export const prisma = new PrismaClient();
 
 // Helper Functions
 
-export const transaction = (
+export const transaction = async (
   transactions: Parameters<typeof prisma.$transaction>[0]
 ) => {
-  prisma.$transaction(transactions);
+  try {
+    await prisma.$transaction(transactions);
+
+    return true;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return false;
+  }
 };
 
 // Main
 
+export const getPatientDiseases = async (
+  departmentId: DepartmentId,
+  patientRecordId: string
+) =>
+  prisma.patientDisease.findMany({
+    where: {
+      departmentId,
+      patientRecordId,
+    },
+  });
+
 export const getPatientPhysicalCondition = async (
   departmentId: DepartmentId,
   patientId: string
-) => {
-  const physicalCondition = await prisma.patientPhysicalCondition.findFirst({
+) =>
+  prisma.patientPhysicalCondition.findFirst({
     where: {
       departmentId,
       patientId,
     },
   });
-
-  if (!physicalCondition) {
-    return {};
-  }
-
-  return physicalCondition.json as Record<string, number>;
-};
 
 export const getPatientRecordByPatientId = (patientId: string) =>
   prisma.patientRecord.findFirst({
@@ -86,6 +99,19 @@ export const upsertPatient = (
     create: {
       ...patientInsuranceCard,
       id: patientId,
+    },
+  });
+
+export const createPatientDisease = (
+  departmentId: DepartmentId,
+  patientRecordId: string,
+  diseaseId: DiseaseId
+) =>
+  prisma.patientDisease.create({
+    data: {
+      departmentId,
+      diseaseId,
+      patientRecordId,
     },
   });
 

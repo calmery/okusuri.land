@@ -1,15 +1,21 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { DepartmentId } from "~/types/Department";
+import { DiseaseId } from "~/types/Disease";
 import { verify } from "~/utils/admin/authentication";
 import * as cache from "~/utils/admin/cache";
 import {
   getDepartment,
-  getSymptomKeysByDepartmentId,
+  getDiseasesByDepartmentId,
+  getSymptomsByDepartmentId,
   isDepartmentExists,
 } from "~/utils/admin/cms";
 import {
+  createPatientDisease,
+  getPatientDiseases,
   getPatientPhysicalCondition,
+  getPatientRecordByPatientId,
   isPatientExists,
+  transaction,
   upsertPatientPhysicalCondition,
 } from "~/utils/admin/database";
 import * as json from "~/utils/json";
@@ -28,64 +34,107 @@ const get = async ({ query }: VercelRequest, response: VercelResponse) => {
 };
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
+  /* Firebase で Token を検証、Patient の ID を取得する */
+
   const patientId = await verify(request);
 
   if (!patientId || !(await isPatientExists(patientId))) {
     return response.status(403).end();
   }
 
+  /* GraphCMS に指定された Department が存在するか、ユーザからのリクエストが正しいかを確認する */
+
   const departmentId = request.query.id as DepartmentId;
+  const currentSymptoms = json.parse<
+    Partial<{ symptoms: { [key: string]: number } }>
+  >(request.body)?.symptoms;
 
-  if (!isDepartmentExists(departmentId)) {
-    return response.status(404).end();
-  }
-
-  const body = json.parse<Partial<{ symptoms: { [key: string]: number } }>>(
-    request.body
-  );
-
-  if (!body || !body.symptoms) {
+  if (!(await isDepartmentExists(departmentId)) || !currentSymptoms) {
     return response.status(400).end();
   }
 
-  const symptomKeys = await getSymptomKeysByDepartmentId(departmentId);
+  /* これからの処理に必要となる値を取得、この時点で `departmentId` と `patientId` は正しい値、処理に失敗する場合は何かしら問題が起こっている */
 
-  if (!symptomKeys) {
+  const diseases = await getDiseasesByDepartmentId(departmentId);
+  const patientRecordId = (await getPatientRecordByPatientId(patientId))?.id;
+  const physicalCondition = ((
+    await getPatientPhysicalCondition(departmentId, patientId)
+  )?.json || {}) as Record<string, number>;
+  const symptoms = await getSymptomsByDepartmentId(departmentId);
+
+  if (!diseases || !patientRecordId || !symptoms) {
     return response.status(503).end();
   }
 
-  const { symptoms } = body;
-  const physicalCondition = await getPatientPhysicalCondition(
-    departmentId,
-    patientId
-  );
-  const nextPhysicalCondition: Record<string, number> = {};
+  /* Department に存在する Symptoms を元に PhysicalCondition の値を更新する */
 
-  symptomKeys.forEach((symptomKey) => {
-    // ToDo: defaultValue を設定できるようにする
-    let value = physicalCondition[symptomKey] || 0;
+  symptoms.forEach((symptom) => {
+    let value = physicalCondition[symptom.key] || symptom.defaultValue;
 
-    // ToDo: 異常な値を検出できるようにする
-    if (isNaN(value)) {
-      value = 0;
+    if (
+      !isNaN(currentSymptoms[symptom.key]) &&
+      Math.abs(currentSymptoms[symptom.key]) <= symptom.maximumChange
+    ) {
+      value += currentSymptoms[symptom.key];
     }
 
-    if (!isNaN(symptoms[symptomKey])) {
-      value += symptoms[symptomKey];
-    }
-
-    nextPhysicalCondition[symptomKey] = value;
+    physicalCondition[symptom.key] = value;
   });
+
+  /* 更新した PhysicalCondition の値をデータベースに反映する */
 
   await upsertPatientPhysicalCondition(
     departmentId,
     patientId,
-    nextPhysicalCondition
+    physicalCondition
   );
 
-  // ToDo: 判定を行う
+  /* 更新した PhysicalCondition の値を元に Disease の判定を行う */
 
-  response.send("OK");
+  const onsetDiseaseIds: DiseaseId[] = [];
+  const patientDiseaseIds = (
+    (await getPatientDiseases(departmentId, patientRecordId)) || []
+  ).map(({ diseaseId }) => diseaseId);
+
+  diseases.forEach((disease) => {
+    // 既に発症している
+    if (patientDiseaseIds.includes(disease.id)) {
+      return;
+    }
+
+    const { symptoms } = disease;
+
+    if (
+      // 全ての症状に当てはまる場合、発症している
+      symptoms.every(
+        (symptom) => symptom.threshold <= physicalCondition[symptom.key]
+      )
+    ) {
+      onsetDiseaseIds.push(disease.id);
+    }
+  });
+
+  /* データベースに発症した Disease を反映する */
+
+  if (
+    !(await transaction(
+      onsetDiseaseIds.map((onsetDiseaseId) =>
+        createPatientDisease(departmentId, patientRecordId, onsetDiseaseId)
+      )
+    ))
+  ) {
+    return response.status(503).end();
+  }
+
+  /* */
+
+  response.send({
+    data: {
+      prescription: {
+        diseases: onsetDiseaseIds,
+      },
+    },
+  });
 };
 
 // Serverless Functions
