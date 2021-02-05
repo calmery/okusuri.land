@@ -1,12 +1,13 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { gql } from "graphql-request";
+import { Department } from "../../../types/Department";
 import * as cache from "../../../utils/cache";
 import * as cms from "../../../utils/cms";
 
 // Helper Functions
 
-const getDepartment = async <T extends unknown>(id: string): Promise<T> =>
-  cms.request(
+const getDepartment = async (id: string) => {
+  const { department } = await cms.request<{ department: Department }>(
     gql`
       {
         department(where: { id: "${id}" }) {
@@ -15,8 +16,13 @@ const getDepartment = async <T extends unknown>(id: string): Promise<T> =>
           icon { url }
           diseases {
             description
-            icon { url }
             id
+            medicines {
+              description
+              icon { url }
+              id
+              name
+            }
             name
             symptoms {
               description
@@ -31,6 +37,9 @@ const getDepartment = async <T extends unknown>(id: string): Promise<T> =>
       }
     `
   );
+
+  return department;
+};
 
 // CRUD
 
