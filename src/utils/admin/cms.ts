@@ -1,8 +1,10 @@
 import { gql, request as _request } from "graphql-request";
-import { Department } from "~/types/Department";
+import { key, setnx } from "./cache";
+import { Department, DepartmentId } from "~/types/Department";
 import { Disease } from "~/types/Disease";
 import { Medicine } from "~/types/Medicine";
 import { Symptom } from "~/types/Symptom";
+import * as json from "~/utils/json";
 
 // Helper Functions
 
@@ -146,6 +148,46 @@ export const getMedicinesByDepartmentId = async (id: string) => {
   return medicines;
 };
 
+export const getSymptomKeysByDepartmentId = async (
+  departmentId: DepartmentId
+) => {
+  try {
+    const cache = await setnx(
+      key("cms", "get_symptom_keys_by_department_id", departmentId),
+      () =>
+        request(
+          gql`
+            {
+              symptoms(where: {
+                diseases_every: {
+                  department: {
+                    id: "${departmentId}"
+                  }
+                }
+              }) {
+                key
+              }
+            }
+          `
+        )
+    );
+
+    if (!cache) {
+      return null;
+    }
+
+    const { symptoms } = json.parse<{
+      symptoms: Pick<Symptom, "key">[];
+    }>(cache)!;
+
+    return symptoms.map(({ key }) => key);
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return null;
+  }
+};
+
 export const getSymptomsByDepartmentId = async (departmentId: string) => {
   const { symptoms } = await request<{
     symptoms: Symptom[];
@@ -169,4 +211,34 @@ export const getSymptomsByDepartmentId = async (departmentId: string) => {
   );
 
   return symptoms;
+};
+
+export const isDepartmentExists = async (departmentId: DepartmentId) => {
+  try {
+    const cache = await setnx(
+      key("cms", "is_department_exists", departmentId),
+      () =>
+        request(
+          gql`
+          {
+            department(where: {
+              id: "${departmentId}"
+            }) {
+              id
+            }
+          }
+        `
+        )
+    );
+
+    if (!cache) {
+      return false;
+    }
+
+    return !!json.parse<{ department: Department | null }>(cache)!.department;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return false;
+  }
 };
