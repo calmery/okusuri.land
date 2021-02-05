@@ -1,20 +1,10 @@
-import { IncomingHttpHeaders } from "http";
-import { PrismaClient } from "@prisma/client";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import * as admin from "firebase-admin";
 import Twitter from "twitter";
 import {
   PatientInsuranceCard,
   PatientRecord,
 } from "~/domains/authentication/models";
-
-// Firebase Admin
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  });
-}
+import { verify, prisma } from "~/utils/admin";
 
 // Helper Functions
 
@@ -44,25 +34,7 @@ const getPatientRecordFromTwitter = ({
     });
   });
 
-const getPatientId = async ({
-  authorization,
-}: IncomingHttpHeaders): Promise<string | null> => {
-  if (!authorization) {
-    return null;
-  }
-
-  const matched = authorization.match(/^Token\s+(.+)$/);
-
-  if (!matched) {
-    return null;
-  }
-
-  return (await admin.auth().verifyIdToken(matched[1])).uid;
-};
-
 // Prisma
-
-const prisma = new PrismaClient();
 
 const upsertPatient = (
   patientId: string,
@@ -97,7 +69,7 @@ const upsertPatientRecord = (
 // CRUD
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
-  const patientId = await getPatientId(request.headers);
+  const patientId = await verify(request);
   const patientInsuranceCard = request.body as PatientInsuranceCard;
 
   if (

@@ -1,9 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { VercelRequest, VercelResponse } from "@vercel/node";
-
-// Prisma
-
-const prisma = new PrismaClient();
+import { prisma } from "~/utils/admin";
 
 // CRUD
 
