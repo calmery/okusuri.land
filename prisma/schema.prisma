@@ -29,6 +29,7 @@ model PatientDisease {
 }
 
 model PatientPhysicalCondition {
+  id           Int      @default(autoincrement()) @id
   departmentId String
   json         Json
   patient      Patient  @relation(fields: [patientId], references: [id])
