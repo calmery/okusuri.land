@@ -31,6 +31,10 @@ export const set = (key: string, value: any): Promise<string> =>
   });
 
 export const setnx = async (key: string, fetcher: () => Promise<any>) => {
+  if (process.env.NODE_ENV !== "production") {
+    return JSON.stringify(await fetcher());
+  }
+
   const value = await get(key);
 
   if (value) {
