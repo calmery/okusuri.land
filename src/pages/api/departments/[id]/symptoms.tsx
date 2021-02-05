@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { gql } from "graphql-request";
-import { Symptom } from "../../../../types/Symptom";
-import * as cache from "../../../../utils/cache";
-import * as cms from "../../../../utils/cms";
+import { Symptom } from "~/types/Symptom";
+import * as cache from "~/utils/cache";
+import * as cms from "~/utils/cms";
 
 // Helper Functions
 

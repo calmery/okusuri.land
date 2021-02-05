@@ -6,7 +6,7 @@ import Twitter from "twitter";
 import {
   PatientInsuranceCard,
   PatientRecord,
-} from "../../domains/authentication/models";
+} from "~/domains/authentication/models";
 
 // Firebase Admin
 

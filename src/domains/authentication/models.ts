@@ -1,5 +1,5 @@
-import { Branded } from "../../types/Branded";
-import { DiseaseId } from "../../types/Disease";
+import { Branded } from "~/types/Branded";
+import { DiseaseId } from "~/types/Disease";
 
 export type Token = Branded<string, "Token">;
 

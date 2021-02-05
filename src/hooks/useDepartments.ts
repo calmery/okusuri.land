@@ -1,6 +1,6 @@
 import useSWR from "swr";
-import { Department } from "../types/Department";
-import { ApiResponse, get } from "../utils/api";
+import { Department } from "~/types/Department";
+import { ApiResponse, get } from "~/utils/api";
 
 const getDepartments = async () => {
   const { data } = await get<ApiResponse<{ departments: Department[] }>>(

@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { useDispatch } from "../domains";
-import { actions } from "../domains/authentication";
+import { useDispatch } from "~/domains";
+import { actions } from "~/domains/authentication";
 
 const Index: React.FC = () => {
   const dispatch = useDispatch();

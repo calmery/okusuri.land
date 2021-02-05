@@ -24,5 +24,18 @@
       }
     ],
     "unused-imports/no-unused-imports": "error"
+  },
+  "settings": {
+    "import/resolver": {
+      "eslint-import-resolver-custom-alias": {
+        "alias": {
+          "~": "./src"
+        },
+        "extensions": [".ts", ".tsx"]
+      }
+    },
+    "react": {
+      "version": "detect"
+    }
   }
 }

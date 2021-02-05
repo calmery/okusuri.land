@@ -1,6 +1,6 @@
 import { GetServerSideProps, NextPage } from "next";
-import { PatientRecord } from "../../domains/authentication/models";
-import { ApiResponse, get } from "../../utils/api";
+import { PatientRecord } from "~/domains/authentication/models";
+import { ApiResponse, get } from "~/utils/api";
 
 const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
   patientRecord,
