@@ -46,6 +46,6 @@ export default (request: VercelRequest, response: VercelResponse) => {
       return get(request, response);
 
     default:
-      return response.status(404).end();
+      return response.status(405).end();
   }
 };
