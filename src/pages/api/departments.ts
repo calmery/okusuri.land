@@ -1,12 +1,15 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { gql } from "graphql-request";
+import { Department } from "../../types/Department";
 import * as cache from "../../utils/cache";
 import * as cms from "../../utils/cms";
 
 // Helper Functions
 
-const getDepartments = () =>
-  cms.request(
+const getDepartments = async () => {
+  const { departments } = await cms.request<{
+    departments: Department[];
+  }>(
     gql`
       {
         departments {
@@ -17,10 +20,15 @@ const getDepartments = () =>
           }
           diseases {
             description
-            icon {
-              url
-            }
             id
+            medicines {
+              description
+              icon {
+                url
+              }
+              id
+              name
+            }
             name
             symptoms {
               description
@@ -35,6 +43,9 @@ const getDepartments = () =>
       }
     `
   );
+
+  return departments;
+};
 
 // CRUD
 
