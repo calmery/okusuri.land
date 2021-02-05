@@ -29,16 +29,15 @@ model PatientDisease {
 }
 
 model PatientRecord {
-  id                String           @id
-  diseases          PatientDisease[]
-  image             String
-  name              String
-  screenName        String
-  patient           Patient          @relation(fields: [patientId], references: [id])
-  patientId         String           @unique
-  physicalCondition Json
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  id         String           @id
+  diseases   PatientDisease[]
+  image      String
+  name       String
+  screenName String
+  patient    Patient          @relation(fields: [patientId], references: [id])
+  patientId  String           @unique
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   @@index(screenName)
   @@index(patientId)
