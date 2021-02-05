@@ -20,6 +20,7 @@ model Patient {
 
 model PatientDisease {
   id              Int           @default(autoincrement()) @id
+  departmentId    String
   diseaseId       String
   patientRecord   PatientRecord @relation(fields: [patientRecordId], references: [id])
   patientRecordId String
