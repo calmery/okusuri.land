@@ -1,4 +1,3 @@
-import { PrismaClient } from "@prisma/client";
 import { VercelRequest } from "@vercel/node";
 import * as admin from "firebase-admin";
 
@@ -25,5 +24,3 @@ export const verify = async (
 
   return (await admin.auth().verifyIdToken(matched[1])).uid;
 };
-
-export const prisma = new PrismaClient();

@@ -4,7 +4,12 @@ import {
   PatientInsuranceCard,
   PatientRecord,
 } from "~/domains/authentication/models";
-import { verify, prisma } from "~/utils/admin";
+import { verify } from "~/utils/admin/authentication";
+import {
+  transaction,
+  upsertPatient,
+  upsertPatientRecord,
+} from "~/utils/admin/database";
 
 // Helper Functions
 
@@ -34,38 +39,6 @@ const getPatientRecordFromTwitter = ({
     });
   });
 
-// Prisma
-
-const upsertPatient = (
-  patientId: string,
-  patientInsuranceCard: PatientInsuranceCard
-) =>
-  prisma.patient.upsert({
-    where: {
-      id: patientId,
-    },
-    update: patientInsuranceCard,
-    create: {
-      ...patientInsuranceCard,
-      id: patientId,
-    },
-  });
-
-const upsertPatientRecord = (
-  patientId: string,
-  patientRecord: Omit<PatientRecord, "diseases">
-) =>
-  prisma.patientRecord.upsert({
-    where: {
-      patientId,
-    },
-    create: {
-      ...patientRecord,
-      patientId,
-    },
-    update: patientRecord,
-  });
-
 // CRUD
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
@@ -82,7 +55,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   const patientRecord = await getPatientRecordFromTwitter(patientInsuranceCard);
 
-  await prisma.$transaction([
+  await transaction([
     upsertPatient(patientId, patientInsuranceCard),
     upsertPatientRecord(patientId, patientRecord),
   ]);

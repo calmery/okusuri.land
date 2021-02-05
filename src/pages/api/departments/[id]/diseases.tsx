@@ -1,44 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { gql } from "graphql-request";
-import { Disease } from "~/types/Disease";
-import * as cache from "~/utils/cache";
-import * as cms from "~/utils/cms";
-
-// Helper Functions
-
-const getDiseasesByDepartmentId = async (id: string) => {
-  const { diseases } = await cms.request<{
-    diseases: Disease[];
-  }>(
-    gql`
-      {
-        diseases(where: {
-          department: {
-            id: "${id}"
-          }
-        }) {
-          description
-          id
-          medicines {
-            description
-            icon { url }
-            id
-            name
-          }
-          name
-          symptoms {
-            description
-              id
-            key
-            value
-          }
-        }
-      }
-    `
-  );
-
-  return diseases;
-};
+import * as cache from "~/utils/admin/cache";
+import { getDiseasesByDepartmentId } from "~/utils/admin/cms";
 
 // CRUD
 
