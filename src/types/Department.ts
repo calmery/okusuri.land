@@ -1,5 +1,5 @@
 import { Branded } from "./Branded";
-import { Medicine } from "./Medicine";
+import { Disease } from "./Disease";
 
 export type DepartmentId = Branded<string, "DepartmentId">;
 
@@ -7,7 +7,7 @@ export type Department = {
   description: string;
   id: DepartmentId;
   icon: { url: string };
-  medicines: Medicine[];
+  diseases: Disease[];
   name: string;
   url: string;
 };

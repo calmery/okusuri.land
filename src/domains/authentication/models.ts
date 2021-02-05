@@ -1,17 +1,17 @@
 import { Branded } from "../../types/Branded";
-import { MedicineId } from "../../types/Medicine";
+import { DiseaseId } from "../../types/Disease";
 
 export type Token = Branded<string, "Token">;
 
-export type UserCredential = {
+export type PatientInsuranceCard = {
   accessToken: string;
   accessTokenSecret: string;
 };
 
-export type UserProfile = {
+export type PatientRecord = {
   id: string;
   image: string;
-  medicines: MedicineId[];
+  diseases: DiseaseId[];
   name: string;
   screenName: string;
 };

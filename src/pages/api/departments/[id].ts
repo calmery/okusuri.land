@@ -13,7 +13,7 @@ const getDepartment = async <T extends unknown>(id: string): Promise<T> =>
           description
           id
           icon { url }
-          medicines {
+          diseases {
             description
             icon { url }
             id

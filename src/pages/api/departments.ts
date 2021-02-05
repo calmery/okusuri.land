@@ -15,7 +15,7 @@ const getDepartments = () =>
           icon {
             url
           }
-          medicines {
+          diseases {
             description
             icon {
               url

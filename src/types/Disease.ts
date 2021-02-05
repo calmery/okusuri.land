@@ -1,12 +1,12 @@
 import { Branded } from "./Branded";
 import { Symptom } from "./Symptom";
 
-export type MedicineId = Branded<string, "MedicineId">;
+export type DiseaseId = Branded<string, "DiseaseId">;
 
-export type Medicine = {
+export type Disease = {
   description: string;
   icon: { url: string };
-  id: MedicineId;
+  id: DiseaseId;
   name: string;
   symptoms: Symptom[];
 };

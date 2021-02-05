@@ -1,9 +1,11 @@
 import { GetServerSideProps, NextPage } from "next";
-import { UserProfile } from "../../domains/authentication/models";
+import { PatientRecord } from "../../domains/authentication/models";
 import { ApiResponse, get } from "../../utils/api";
 
-const Patients: NextPage<{ userProfile: UserProfile }> = ({ userProfile }) => {
-  return <div>{userProfile.name}</div>;
+const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
+  patientRecord,
+}) => {
+  return <div>{patientRecord.name}</div>;
 };
 
 export const getServerSideProps: GetServerSideProps = async ({
@@ -18,13 +20,13 @@ export const getServerSideProps: GetServerSideProps = async ({
     res.end();
   }
 
-  const { data } = await get<ApiResponse<UserProfile>>(
+  const { data } = await get<ApiResponse<PatientRecord>>(
     `/patients/${screenName.slice(1)}`
   );
 
   return {
     props: {
-      userProfile: data,
+      patientRecord: data,
     },
   };
 };

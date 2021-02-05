@@ -4,8 +4,8 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import * as admin from "firebase-admin";
 import Twitter from "twitter";
 import {
-  UserCredential,
-  UserProfile,
+  PatientInsuranceCard,
+  PatientRecord,
 } from "../../domains/authentication/models";
 
 // Firebase Admin
@@ -18,10 +18,10 @@ if (!admin.apps.length) {
 
 // Helper Functions
 
-const getUserProfileFromTwitter = ({
+const getPatientRecordFromTwitter = ({
   accessToken,
   accessTokenSecret,
-}: UserCredential): Promise<Omit<UserProfile, "medicines">> =>
+}: PatientInsuranceCard): Promise<Omit<PatientRecord, "diseases">> =>
   new Promise((resolve, reject) => {
     const twitter = new Twitter({
       consumer_key: process.env.TWITTER_API_KEY!,
@@ -44,7 +44,7 @@ const getUserProfileFromTwitter = ({
     });
   });
 
-const verifyUser = async ({
+const getPatientId = async ({
   authorization,
 }: IncomingHttpHeaders): Promise<string | null> => {
   if (!authorization) {
@@ -64,55 +64,58 @@ const verifyUser = async ({
 
 const prisma = new PrismaClient();
 
-const upsertUser = (userId: string, userCredential: UserCredential) =>
-  prisma.user.upsert({
+const upsertPatient = (
+  patientId: string,
+  patientInsuranceCard: PatientInsuranceCard
+) =>
+  prisma.patient.upsert({
     where: {
-      id: userId,
+      id: patientId,
     },
-    update: userCredential,
+    update: patientInsuranceCard,
     create: {
-      ...userCredential,
-      id: userId,
+      ...patientInsuranceCard,
+      id: patientId,
     },
   });
 
-const upsertUserProfile = (
-  userId: string,
-  userProfile: Omit<UserProfile, "medicines">
+const upsertPatientRecord = (
+  patientId: string,
+  patientRecord: Omit<PatientRecord, "diseases">
 ) =>
-  prisma.userProfile.upsert({
+  prisma.patientRecord.upsert({
     where: {
-      userId,
+      patientId,
     },
     create: {
-      ...userProfile,
-      userId,
+      ...patientRecord,
+      patientId,
     },
-    update: userProfile,
+    update: patientRecord,
   });
 
 // CRUD
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
-  const userCredential = request.body as UserCredential;
-  const userId = await verifyUser(request.headers);
+  const patientId = await getPatientId(request.headers);
+  const patientInsuranceCard = request.body as PatientInsuranceCard;
 
   if (
-    !userCredential.accessToken ||
-    !userCredential.accessTokenSecret ||
-    !userId
+    !patientId ||
+    !patientInsuranceCard.accessToken ||
+    !patientInsuranceCard.accessTokenSecret
   ) {
     return response.status(400).end();
   }
 
-  const userProfile = await getUserProfileFromTwitter(userCredential);
+  const patientRecord = await getPatientRecordFromTwitter(patientInsuranceCard);
 
   await prisma.$transaction([
-    upsertUser(userId, userCredential),
-    upsertUserProfile(userId, userProfile),
+    upsertPatient(patientId, patientInsuranceCard),
+    upsertPatientRecord(patientId, patientRecord),
   ]);
 
-  response.send({ data: userProfile });
+  response.send({ data: patientRecord });
 };
 
 // Serverless Functions

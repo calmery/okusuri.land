@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Token, UserProfile } from "./models";
+import { Token, PatientRecord } from "./models";
 import { firebase, post } from "./utils";
 
 export const authenticate = createAsyncThunk(
@@ -8,7 +8,7 @@ export const authenticate = createAsyncThunk(
     firebase.auth().signInWithRedirect(new firebase.auth.TwitterAuthProvider())
 );
 
-export const refreshProfile = createAsyncThunk<UserProfile | null>(
+export const refreshProfile = createAsyncThunk<PatientRecord | null>(
   "AUTHENTICATION/REFRESH_PROFILE",
   async () => {
     const { credential } = await firebase.auth().getRedirectResult();
@@ -17,7 +17,7 @@ export const refreshProfile = createAsyncThunk<UserProfile | null>(
       return null;
     }
 
-    return await post<UserProfile>("/patients", {
+    return await post<PatientRecord>("/patients", {
       accessToken: (credential as any).accessToken,
       accessTokenSecret: (credential as any).secret,
     });
@@ -27,12 +27,12 @@ export const refreshProfile = createAsyncThunk<UserProfile | null>(
 export const refreshToken = createAsyncThunk<Token | null>(
   "AUTHENTICATION/REFRESH_TOKEN",
   async () => {
-    const user = firebase.auth().currentUser;
+    const { currentUser } = firebase.auth();
 
-    if (!user) {
+    if (!currentUser) {
       return null;
     }
 
-    return (await user.getIdToken(true)) as Token;
+    return (await currentUser.getIdToken(true)) as Token;
   }
 );
