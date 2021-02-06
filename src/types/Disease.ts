@@ -6,7 +6,6 @@ export type DiseaseId = Branded<string, "DiseaseId">;
 
 export type Disease = {
   description: string;
-  icon: { url: string };
   id: DiseaseId;
   medicines: Medicine[];
   name: string;
