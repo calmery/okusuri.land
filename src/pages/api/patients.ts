@@ -11,6 +11,7 @@ import {
   upsertPatient,
   upsertPatientRecord,
 } from "~/utils/admin/database";
+import * as json from "~/utils/json";
 
 // Helper Functions
 
@@ -43,16 +44,16 @@ const getPatientRecordFromTwitter = ({
 // CRUD
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
-  await cors(request, response);
-
   const patientId = await verify(request);
-  const patientInsuranceCard = request.body as PatientInsuranceCard;
+  const patientInsuranceCard = json.parse<PatientInsuranceCard>(request.body);
 
   if (
     !patientId ||
+    !patientInsuranceCard ||
     !patientInsuranceCard.accessToken ||
     !patientInsuranceCard.accessTokenSecret
   ) {
+    console.log("Return ?");
     return response.status(400).end();
   }
 
@@ -68,7 +69,9 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
 // Serverless Functions
 
-export default (request: VercelRequest, response: VercelResponse) => {
+export default async (request: VercelRequest, response: VercelResponse) => {
+  await cors(request, response);
+
   switch (request.method) {
     case "POST":
       return post(request, response);

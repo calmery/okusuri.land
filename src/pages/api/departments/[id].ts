@@ -22,8 +22,6 @@ import * as json from "~/utils/json";
 // CRUD
 
 const get = async (request: VercelRequest, response: VercelResponse) => {
-  await cors(request, response);
-
   const departmentId = encodeURIComponent(
     request.query.id as string
   ) as DepartmentId;
@@ -38,8 +36,6 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
 };
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
-  await cors(request, response);
-
   /* Firebase で Token を検証、Patient の ID を取得する */
 
   const patientId = await verify(request);
@@ -144,7 +140,9 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
 // Serverless Functions
 
-export default (request: VercelRequest, response: VercelResponse) => {
+export default async (request: VercelRequest, response: VercelResponse) => {
+  await cors(request, response);
+
   switch (request.method) {
     case "GET":
       return get(request, response);
