@@ -5,6 +5,7 @@ import { verify } from "~/utils/admin/authentication";
 import {
   getDepartment,
   getDiseasesByDepartmentId,
+  getDiseasesByDiseaseIds,
   getSymptomsByDepartmentId,
   isDepartmentExists,
 } from "~/utils/admin/cms";
@@ -132,7 +133,9 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
   response.send({
     data: {
       prescription: {
-        diseases: onsetDiseaseIds,
+        diseases: onsetDiseaseIds.length
+          ? await getDiseasesByDiseaseIds(onsetDiseaseIds)
+          : null,
       },
     },
   });

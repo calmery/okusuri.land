@@ -1,7 +1,8 @@
 import { gql, request as _request } from "graphql-request";
 import { key, setnx } from "./cache";
 import { Department, DepartmentId } from "~/types/Department";
-import { Disease } from "~/types/Disease";
+import { Disease, DiseaseId } from "~/types/Disease";
+import { Medicine } from "~/types/Medicine";
 import { Symptom } from "~/types/Symptom";
 import * as json from "~/utils/json";
 
@@ -49,6 +50,43 @@ export const getDiseasesByDepartmentId = async (departmentId: DepartmentId) => {
 
     return json.parse<{
       diseases: Disease[];
+    }>(cache)!.diseases;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return null;
+  }
+};
+
+export const getDiseasesByDiseaseIds = async (diseaseIds: DiseaseId[]) => {
+  try {
+    const cache = await setnx(
+      key("cms", "get_diseases_by_disease_ids", ...diseaseIds.sort()),
+      () =>
+        request(
+          gql`
+          {
+            diseases(where: { id_in: [${diseaseIds
+              .map((diseaseId) => `"${diseaseId}"`)
+              .join(",")}] }) {
+              description
+              name
+              medicines {
+                description
+                icon { url }
+                name
+              }
+            }
+          }
+        `
+        )
+    );
+
+    return json.parse<{
+      diseases: Pick<Disease, "description" | "name"> &
+        {
+          medicines: Pick<Medicine, "description" | "icon" | "name">[];
+        }[];
     }>(cache)!.diseases;
   } catch (error) {
     // ToDo: Sentry にエラーを送信する
