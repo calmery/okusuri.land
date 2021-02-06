@@ -18,9 +18,6 @@ import {
   transaction,
   upsertPatientPhysicalCondition,
 } from "~/utils/admin/database";
-import * as json from "~/utils/json";
-
-// CRUD
 
 const get = async (request: VercelRequest, response: VercelResponse) => {
   const departmentId = encodeURIComponent(
@@ -47,9 +44,9 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* GraphCMS に指定された Department が存在するか、ユーザからのリクエストが正しいかを確認する */
 
-  const currentSymptoms = json.parse<
-    Partial<{ symptoms: { [key: string]: number } }>
-  >(request.body)?.symptoms;
+  const currentSymptoms = (request.body as Partial<{
+    symptoms: { [key: string]: number };
+  }>)?.symptoms;
   const departmentId = request.query.id as DepartmentId;
 
   if (!currentSymptoms || !(await isDepartmentExists(departmentId))) {
