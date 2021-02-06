@@ -11,9 +11,6 @@ import {
   upsertPatient,
   upsertPatientRecord,
 } from "~/utils/admin/database";
-import * as json from "~/utils/json";
-
-// Helper Functions
 
 const getPatientRecordFromTwitter = ({
   accessToken,
@@ -45,7 +42,7 @@ const getPatientRecordFromTwitter = ({
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
   const patientId = await verify(request);
-  const patientInsuranceCard = json.parse<PatientInsuranceCard>(request.body);
+  const patientInsuranceCard = request.body as PatientInsuranceCard;
 
   if (
     !patientId ||
@@ -53,7 +50,6 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     !patientInsuranceCard.accessToken ||
     !patientInsuranceCard.accessTokenSecret
   ) {
-    console.log("Return ?");
     return response.status(400).end();
   }
 
