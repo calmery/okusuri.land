@@ -2,7 +2,6 @@ import { gql, request as _request } from "graphql-request";
 import { key, setnx } from "./cache";
 import { Department, DepartmentId } from "~/types/Department";
 import { Disease } from "~/types/Disease";
-import { Medicine } from "~/types/Medicine";
 import { Symptom } from "~/types/Symptom";
 import * as json from "~/utils/json";
 
@@ -143,41 +142,6 @@ export const getDepartments = async () => {
     );
 
     return json.parse<{ departments: Department[] }>(cache)!.departments;
-  } catch (error) {
-    // ToDo: Sentry にエラーを送信する
-
-    return null;
-  }
-};
-
-export const getMedicinesByDepartmentId = async (
-  departmentId: DepartmentId
-) => {
-  try {
-    const cache = await setnx(
-      key("cms", "get_medicines_by_department_id", departmentId),
-      () =>
-        request(
-          gql`
-            {
-              medicines(where: {
-                disease: {
-                  department: {
-                    id: "${departmentId}"
-                  }
-                }
-              }) {
-                description
-                icon { url }
-                id
-                name
-              }
-            }
-          `
-        )
-    );
-
-    return json.parse<{ medicines: Medicine[] }>(cache)!.medicines;
   } catch (error) {
     // ToDo: Sentry にエラーを送信する
 

@@ -5,6 +5,7 @@ import {
   PatientRecord,
 } from "~/domains/authentication/models";
 import { verify } from "~/utils/admin/authentication";
+import { cors } from "~/utils/admin/cors";
 import {
   transaction,
   upsertPatient,
@@ -42,6 +43,8 @@ const getPatientRecordFromTwitter = ({
 // CRUD
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
+  await cors(request, response);
+
   const patientId = await verify(request);
   const patientInsuranceCard = request.body as PatientInsuranceCard;
 

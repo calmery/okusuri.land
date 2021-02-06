@@ -8,6 +8,7 @@ import {
   getSymptomsByDepartmentId,
   isDepartmentExists,
 } from "~/utils/admin/cms";
+import { cors } from "~/utils/admin/cors";
 import {
   createPatientDisease,
   getPatientDiseases,
@@ -20,8 +21,12 @@ import * as json from "~/utils/json";
 
 // CRUD
 
-const get = async ({ query }: VercelRequest, response: VercelResponse) => {
-  const departmentId = encodeURIComponent(query.id as string) as DepartmentId;
+const get = async (request: VercelRequest, response: VercelResponse) => {
+  await cors(request, response);
+
+  const departmentId = encodeURIComponent(
+    request.query.id as string
+  ) as DepartmentId;
 
   if (!(await isDepartmentExists(departmentId))) {
     return response.status(404).end();
@@ -33,6 +38,8 @@ const get = async ({ query }: VercelRequest, response: VercelResponse) => {
 };
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
+  await cors(request, response);
+
   /* Firebase で Token を検証、Patient の ID を取得する */
 
   const patientId = await verify(request);
