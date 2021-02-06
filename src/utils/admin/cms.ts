@@ -13,7 +13,7 @@ export const request = async <T extends unknown>(query: string): Promise<T> =>
 
 // Main
 
-export const getDiseasesByDepartmentId = async (departmentId: string) => {
+export const getDiseasesByDepartmentId = async (departmentId: DepartmentId) => {
   try {
     const cache = await setnx(
       key("cms", "get_diseases_by_department_id", departmentId),
@@ -58,110 +58,134 @@ export const getDiseasesByDepartmentId = async (departmentId: string) => {
   }
 };
 
-export const getDepartment = async (id: string) => {
-  const { department } = await request<{ department: Department }>(
-    gql`
-      {
-        department(where: { id: "${id}" }) {
-          description
-          id
-          icon { url }
-          diseases {
-            description
-            id
-            medicines {
-              description
-              icon { url }
-              id
-              name
+export const getDepartment = async (departmentId: DepartmentId) => {
+  try {
+    const cache = await setnx(key("cms", "get_department", departmentId), () =>
+      request(
+        gql`
+            {
+              department(where: { id: "${departmentId}" }) {
+                description
+                id
+                icon { url }
+                diseases {
+                  description
+                  id
+                  medicines {
+                    description
+                    icon { url }
+                    id
+                    name
+                  }
+                  name
+                  symptoms {
+                    description
+                    id
+                    maximumChange
+                    key
+                    threshold
+                  }
+                }
+                name
+                url
+              }
             }
-            name
-            symptoms {
-              description
-              id
-              maximumChange
-              key
-              threshold
-            }
-          }
-          name
-          url
-        }
-      }
-    `
-  );
+          `
+      )
+    );
 
-  return department;
+    return json.parse<{ department: Department }>(cache)!.department;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return null;
+  }
 };
 
 export const getDepartments = async () => {
-  const { departments } = await request<{
-    departments: Department[];
-  }>(
-    gql`
-      {
-        departments {
-          description
-          id
-          icon {
-            url
-          }
-          diseases {
-            description
-            id
-            medicines {
+  try {
+    const cache = await setnx(key("cms", "get_departments"), () =>
+      request(
+        gql`
+          {
+            departments {
               description
+              id
               icon {
                 url
               }
-              id
+              diseases {
+                description
+                id
+                medicines {
+                  description
+                  icon {
+                    url
+                  }
+                  id
+                  name
+                }
+                name
+                symptoms {
+                  description
+                  id
+                  maximumChange
+                  key
+                  threshold
+                }
+              }
               name
-            }
-            name
-            symptoms {
-              description
-              id
-              maximumChange
-              key
-              threshold
+              url
             }
           }
-          name
-          url
-        }
-      }
-    `
-  );
+        `
+      )
+    );
 
-  return departments;
+    return json.parse<{ departments: Department[] }>(cache)!.departments;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return null;
+  }
 };
 
-export const getMedicinesByDepartmentId = async (id: string) => {
-  const { medicines } = await request<{
-    medicines: Medicine[];
-  }>(
-    gql`
-      {
-        medicines(where: {
-          disease: {
-            department: {
-              id: "${id}"
+export const getMedicinesByDepartmentId = async (
+  departmentId: DepartmentId
+) => {
+  try {
+    const cache = await setnx(
+      key("cms", "get_medicines_by_department_id", departmentId),
+      () =>
+        request(
+          gql`
+            {
+              medicines(where: {
+                disease: {
+                  department: {
+                    id: "${departmentId}"
+                  }
+                }
+              }) {
+                description
+                icon { url }
+                id
+                name
+              }
             }
-          }
-        }) {
-          description
-          icon { url }
-          id
-          name
-        }
-      }
-    `
-  );
+          `
+        )
+    );
 
-  return medicines;
+    return json.parse<{ medicines: Medicine[] }>(cache)!.medicines;
+  } catch (error) {
+    // ToDo: Sentry にエラーを送信する
+
+    return null;
+  }
 };
 
-export const getSymptomsByDepartmentId = async (departmentId: string) => {
+export const getSymptomsByDepartmentId = async (departmentId: DepartmentId) => {
   try {
     const cache = await setnx(
       key("cms", "get_symptoms_by_department_id", departmentId),

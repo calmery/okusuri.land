@@ -1,19 +1,21 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import * as cache from "~/utils/admin/cache";
-import { getMedicinesByDepartmentId } from "~/utils/admin/cms";
+import { DepartmentId } from "~/types/Department";
+import {
+  getMedicinesByDepartmentId,
+  isDepartmentExists,
+} from "~/utils/admin/cms";
 
 // CRUD
 
 const get = async ({ query }: VercelRequest, response: VercelResponse) => {
-  const departmentId = encodeURIComponent(query.id as string);
-  const data = JSON.parse(
-    await cache.setnx(cache.key("departments", departmentId, "medicines"), () =>
-      getMedicinesByDepartmentId(departmentId)
-    )
-  );
+  const departmentId = encodeURIComponent(query.id as string) as DepartmentId;
+
+  if (!(await isDepartmentExists(departmentId))) {
+    return response.status(404).end();
+  }
 
   response.send({
-    data,
+    data: await getMedicinesByDepartmentId(departmentId),
   });
 };
 
