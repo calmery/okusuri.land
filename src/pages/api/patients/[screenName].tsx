@@ -16,7 +16,6 @@ const get = async ({ query }: VercelRequest, response: VercelResponse) => {
     data: {
       id: patientRecord.id,
       image: patientRecord.image,
-      diseases: patientRecord.diseases.map(({ diseaseId }) => diseaseId),
       name: patientRecord.name,
       screenName: patientRecord.screenName,
     },

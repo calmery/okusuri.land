@@ -16,7 +16,7 @@ import {
 const getPatientRecordFromTwitter = ({
   accessToken,
   accessTokenSecret,
-}: PatientInsuranceCard): Promise<Omit<PatientRecord, "diseases">> =>
+}: PatientInsuranceCard): Promise<PatientRecord> =>
   new Promise((resolve, reject) => {
     const twitter = new Twitter({
       consumer_key: process.env.TWITTER_API_KEY!,

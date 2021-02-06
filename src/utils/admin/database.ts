@@ -28,12 +28,12 @@ export const transaction = async (
 
 export const getPatientDiseases = async (
   departmentId: DepartmentId,
-  patientRecordId: string
+  patientId: string
 ) =>
   prisma.patientDisease.findMany({
     where: {
       departmentId,
-      patientRecordId,
+      patientId,
     },
   });
 
@@ -50,7 +50,6 @@ export const getPatientPhysicalCondition = async (
 
 export const getPatientRecordByPatientId = (patientId: string) =>
   prisma.patientRecord.findFirst({
-    include: { diseases: true },
     orderBy: {
       // Twitter の screen_name の変更によって既存の PatientRecord と screen_name が重複する可能性がある
       // 重複自体に問題はないため、レコードが複数存在する場合を考慮して updatedAt を降順でソートする
@@ -66,7 +65,6 @@ export const getPatientRecordByPatientId = (patientId: string) =>
 
 export const getPatientRecordByScreenName = (screenName: string) =>
   prisma.patientRecord.findFirst({
-    include: { diseases: true },
     orderBy: {
       // Twitter の screen_name の変更によって既存の PatientRecord と screen_name が重複する可能性がある
       // 重複自体に問題はないため、レコードが複数存在する場合を考慮して updatedAt を降順でソートする
@@ -104,14 +102,14 @@ export const upsertPatient = (
 
 export const createPatientDisease = (
   departmentId: DepartmentId,
-  patientRecordId: string,
+  patientId: string,
   diseaseId: DiseaseId
 ) =>
   prisma.patientDisease.create({
     data: {
       departmentId,
       diseaseId,
-      patientRecordId,
+      patientId,
     },
   });
 

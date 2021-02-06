@@ -19,15 +19,15 @@ model Patient {
 }
 
 model PatientDisease {
-  id              Int           @default(autoincrement()) @id
-  departmentId    String
-  diseaseId       String
-  patientRecord   PatientRecord @relation(fields: [patientRecordId], references: [id])
-  patientRecordId String
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id           Int      @default(autoincrement()) @id
+  departmentId String
+  diseaseId    String
+  patient      Patient  @relation(fields: [patientId], references: [id])
+  patientId    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  @@index([departmentId, patientRecordId])
+  @@index([departmentId, patientId])
 }
 
 model PatientPhysicalCondition {
@@ -43,15 +43,14 @@ model PatientPhysicalCondition {
 }
 
 model PatientRecord {
-  id         String           @id
-  diseases   PatientDisease[]
+  id         String   @id
   image      String
   name       String
   screenName String
-  patient    Patient          @relation(fields: [patientId], references: [id])
-  patientId  String           @unique
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  patientId  String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index(screenName)
   @@index(patientId)

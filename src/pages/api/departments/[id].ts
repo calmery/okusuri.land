@@ -13,7 +13,6 @@ import {
   createPatientDisease,
   getPatientDiseases,
   getPatientPhysicalCondition,
-  getPatientRecordByPatientId,
   isPatientExists,
   transaction,
   upsertPatientPhysicalCondition,
@@ -44,25 +43,24 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* GraphCMS に指定された Department が存在するか、ユーザからのリクエストが正しいかを確認する */
 
-  const departmentId = request.query.id as DepartmentId;
   const currentSymptoms = json.parse<
     Partial<{ symptoms: { [key: string]: number } }>
   >(request.body)?.symptoms;
+  const departmentId = request.query.id as DepartmentId;
 
-  if (!(await isDepartmentExists(departmentId)) || !currentSymptoms) {
+  if (!currentSymptoms || !(await isDepartmentExists(departmentId))) {
     return response.status(400).end();
   }
 
   /* これからの処理に必要となる値を取得、この時点で `departmentId` と `patientId` は正しい値、処理に失敗する場合は何かしら問題が起こっている */
 
   const diseases = await getDiseasesByDepartmentId(departmentId);
-  const patientRecordId = (await getPatientRecordByPatientId(patientId))?.id;
   const physicalCondition = ((
     await getPatientPhysicalCondition(departmentId, patientId)
   )?.json || {}) as Record<string, number>;
   const symptoms = await getSymptomsByDepartmentId(departmentId);
 
-  if (!diseases || !patientRecordId || !symptoms) {
+  if (!diseases || !symptoms) {
     return response.status(503).end();
   }
 
@@ -93,7 +91,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   const onsetDiseaseIds: DiseaseId[] = [];
   const patientDiseaseIds = (
-    (await getPatientDiseases(departmentId, patientRecordId)) || []
+    (await getPatientDiseases(departmentId, patientId)) || []
   ).map(({ diseaseId }) => diseaseId);
 
   diseases.forEach((disease) => {
@@ -119,7 +117,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
   if (
     !(await transaction(
       onsetDiseaseIds.map((onsetDiseaseId) =>
-        createPatientDisease(departmentId, patientRecordId, onsetDiseaseId)
+        createPatientDisease(departmentId, patientId, onsetDiseaseId)
       )
     ))
   ) {
