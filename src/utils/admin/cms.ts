@@ -2,7 +2,7 @@ import { gql, request as _request } from "graphql-request";
 import { key, setnx } from "./cache";
 import { Department, DepartmentId } from "~/types/Department";
 import { Disease, DiseaseId } from "~/types/Disease";
-import { Medicine } from "~/types/Medicine";
+import { Prescription } from "~/types/Prescription";
 import { Symptom } from "~/types/Symptom";
 import * as json from "~/utils/json";
 
@@ -58,7 +58,7 @@ export const getDiseasesByDepartmentId = async (departmentId: DepartmentId) => {
   }
 };
 
-export const getDiseasesByDiseaseIds = async (diseaseIds: DiseaseId[]) => {
+export const createPrescription = async (diseaseIds: DiseaseId[]) => {
   try {
     const cache = await setnx(
       key("cms", "get_diseases_by_disease_ids", ...diseaseIds.sort()),
@@ -82,12 +82,7 @@ export const getDiseasesByDiseaseIds = async (diseaseIds: DiseaseId[]) => {
         )
     );
 
-    return json.parse<{
-      diseases: Pick<Disease, "description" | "name"> &
-        {
-          medicines: Pick<Medicine, "description" | "icon" | "name">[];
-        }[];
-    }>(cache)!.diseases;
+    return json.parse<Prescription>(cache)!;
   } catch (error) {
     // ToDo: Sentry にエラーを送信する
 

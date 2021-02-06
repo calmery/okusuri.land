@@ -5,7 +5,7 @@ import { verify } from "~/utils/admin/authentication";
 import {
   getDepartment,
   getDiseasesByDepartmentId,
-  getDiseasesByDiseaseIds,
+  createPrescription,
   getSymptomsByDepartmentId,
   isDepartmentExists,
 } from "~/utils/admin/cms";
@@ -113,6 +113,14 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     }
   });
 
+  /* 処方箋を作成する */
+
+  const prescription = await createPrescription(onsetDiseaseIds);
+
+  if (!prescription) {
+    return response.status(503).end();
+  }
+
   /* データベースに発症した Disease を反映する */
 
   if (
@@ -129,11 +137,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   response.send({
     data: {
-      prescription: {
-        diseases: onsetDiseaseIds.length
-          ? await getDiseasesByDiseaseIds(onsetDiseaseIds)
-          : null,
-      },
+      prescription,
     },
   });
 };
