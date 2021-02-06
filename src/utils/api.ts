@@ -4,7 +4,7 @@ const axios = _axios.create({
   baseURL:
     process.env.NODE_ENV === "production"
       ? "https://okusuri.land/api/"
-      : "http://localhost:3000/api/",
+      : "http://localhost:8000/api/",
 });
 
 export type ApiResponse<T> = {
