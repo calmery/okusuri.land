@@ -1,4 +1,5 @@
 import { gql, request as _request } from "graphql-request";
+import { Sentry } from "../sentry";
 import { key, setnx } from "./cache";
 import { Department, DepartmentId } from "~/types/Department";
 import { Disease, DiseaseId } from "~/types/Disease";
@@ -52,7 +53,7 @@ export const getDiseasesByDepartmentId = async (departmentId: DepartmentId) => {
       diseases: Disease[];
     }>(cache)!.diseases;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return null;
   }
@@ -84,7 +85,7 @@ export const createPrescription = async (diseaseIds: DiseaseId[]) => {
 
     return json.parse<Prescription>(cache)!;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return null;
   }
@@ -128,7 +129,7 @@ export const getDepartment = async (departmentId: DepartmentId) => {
 
     return json.parse<{ department: Department }>(cache)!.department;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return null;
   }
@@ -176,7 +177,7 @@ export const getDepartments = async () => {
 
     return json.parse<{ departments: Department[] }>(cache)!.departments;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return null;
   }
@@ -211,7 +212,7 @@ export const getSymptomsByDepartmentId = async (departmentId: DepartmentId) => {
 
     return json.parse<{ symptoms: Symptom[] }>(cache)!.symptoms;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return null;
   }
@@ -237,7 +238,7 @@ export const isDepartmentExists = async (departmentId: DepartmentId) => {
 
     return !!json.parse<{ department: Department | null }>(cache)!.department;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return false;
   }

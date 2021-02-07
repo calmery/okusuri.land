@@ -1,5 +1,6 @@
 import { VercelRequest } from "@vercel/node";
 import * as admin from "firebase-admin";
+import { Sentry } from "../sentry";
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -25,7 +26,7 @@ export const verify = async (
   try {
     return (await admin.auth().verifyIdToken(matched[1])).uid;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return null;
   }

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { Sentry } from "../sentry";
 import {
   PatientInsuranceCard,
   PatientRecord,
@@ -18,7 +19,7 @@ export const transaction = async (
 
     return true;
   } catch (error) {
-    // ToDo: Sentry にエラーを送信する
+    Sentry.captureException(error);
 
     return false;
   }
