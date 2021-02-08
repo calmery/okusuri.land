@@ -5,7 +5,7 @@ import { store } from "~/domains";
 import { actions } from "~/domains/authentication";
 import { firebase } from "~/domains/authentication/utils";
 import "~/utils/sentry";
-import "../styles/globals.css";
+import "~/styles/globals.scss";
 
 const App = ({ Component, pageProps }: AppProps) => {
   useEffect(() => {
