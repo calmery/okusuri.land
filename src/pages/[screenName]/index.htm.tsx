@@ -8,20 +8,9 @@ const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
   return <div>{patientRecord.name}</div>;
 };
 
-export const getServerSideProps: GetServerSideProps = async ({
-  query,
-  res,
-}) => {
-  const screenName = query.screenName as string;
-
-  if (!screenName.startsWith("~")) {
-    res.setHeader("Location", `/~${screenName}/index.htm`);
-    res.statusCode = 301;
-    res.end();
-  }
-
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const { data } = await get<ApiResponse<PatientRecord>>(
-    `/patients/${screenName.slice(1)}`
+    `/patients/${(query.screenName as string).slice(1)}`
   );
 
   return {
