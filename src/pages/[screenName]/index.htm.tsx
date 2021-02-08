@@ -1,6 +1,7 @@
 import { GetServerSideProps, NextPage } from "next";
 import { PatientRecord } from "~/domains/authentication/models";
 import { ApiResponse, get } from "~/utils/api";
+import { Sentry } from "~/utils/sentry";
 
 const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
   patientRecord,
@@ -9,15 +10,22 @@ const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  const { data } = await get<ApiResponse<PatientRecord>>(
-    `/patients/${(query.screenName as string).slice(1)}`
-  );
+  try {
+    const { data } = await get<ApiResponse<PatientRecord>>(
+      `/patients/${(query.screenName as string).slice(1)}`
+    );
+    return {
+      props: {
+        patientRecord: data,
+      },
+    };
+  } catch (error) {
+    Sentry.captureException(error);
 
-  return {
-    props: {
-      patientRecord: data,
-    },
-  };
+    return {
+      notFound: true,
+    };
+  }
 };
 
 export default Patients;
