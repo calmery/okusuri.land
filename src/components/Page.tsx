@@ -3,6 +3,7 @@ import Head from "next/head";
 import React from "react";
 import { BlogSwitch } from "./BlogSwitch";
 import { Menu } from "./Menu";
+import html from "~/static/noneme.html";
 
 // Animations
 
@@ -65,7 +66,7 @@ export const Page: React.FC<{
       <div css={border} />
       <div css={main}>
         {typeof children === "string" && (
-          <div dangerouslySetInnerHTML={{ __html: children }} />
+          <div dangerouslySetInnerHTML={{ __html: html + children }} />
         )}
         {typeof children !== "string" && children}
         <BlogSwitch />
