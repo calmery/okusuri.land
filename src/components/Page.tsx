@@ -41,6 +41,7 @@ const main = css`
 `;
 
 const menu = css`
+  flex-shrink: 0;
   width: 18%;
 `;
 
