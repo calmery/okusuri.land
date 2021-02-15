@@ -1,4 +1,6 @@
 import { css, keyframes } from "@emotion/react";
+import React from "react";
+import { BlogSwitch } from "./BlogSwitch";
 import { Menu } from "./Menu";
 
 // Animations
@@ -47,12 +49,20 @@ const menu = css`
 
 // Main
 
-export const Page: React.FC<{ children: string }> = ({ children }) => (
+export const Page: React.FC<{ children: React.ReactNode | string }> = ({
+  children,
+}) => (
   <div css={container}>
     <div css={menu}>
       <Menu />
     </div>
     <div css={border} />
-    <div css={main} dangerouslySetInnerHTML={{ __html: children }} />
+    <div css={main}>
+      {typeof children === "string" && (
+        <div dangerouslySetInnerHTML={{ __html: children }} />
+      )}
+      {typeof children !== "string" && children}
+      <BlogSwitch />
+    </div>
   </div>
 );
