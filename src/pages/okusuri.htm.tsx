@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useLayoutEffect } from "react";
 import { Page } from "~/components/Page";
 import { useDispatch, useSelector } from "~/domains";
 import { actions, selectors } from "~/domains/authentication";
-import html from "~/static/login.html";
+import html from "~/static/okusuri.html";
 
 const Login: React.FC = () => {
   const dispatch = useDispatch();
