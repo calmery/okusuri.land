@@ -35,6 +35,10 @@ const Okusuri: React.FC = () => {
     };
   }, [handleClickLogInButton]);
 
+  if (profile) {
+    return <Page title="おくすり手帳" />;
+  }
+
   return <Page title="おくすり手帳">{html}</Page>;
 };
 

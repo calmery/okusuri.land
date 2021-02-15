@@ -51,7 +51,7 @@ const menu = css`
 // Main
 
 export const Page: React.FC<{
-  children: React.ReactNode | string;
+  children?: React.ReactNode | string;
   title?: string;
 }> = ({ children, title }) => (
   <>
