@@ -36,6 +36,8 @@ const container = css`
 const main = css`
   background: url("/background.gif");
   flex-grow: 1;
+  height: 100%;
+  overflow: scroll;
 `;
 
 const menu = css`
