@@ -7,6 +7,7 @@ import {
 import { verify } from "~/utils/admin/authentication";
 import { cors } from "~/utils/admin/cors";
 import {
+  getPatientRecordByPatientId,
   transaction,
   upsertPatient,
   upsertPatientRecord,
@@ -40,6 +41,22 @@ const getPatientRecordFromTwitter = ({
 
 // CRUD
 
+const get = async (request: VercelRequest, response: VercelResponse) => {
+  const patientId = await verify(request);
+
+  if (!patientId) {
+    return response.status(400).end();
+  }
+
+  const patientRecord = await getPatientRecordByPatientId(patientId);
+
+  if (!patientRecord) {
+    return response.status(404).end();
+  }
+
+  response.send({ data: patientRecord });
+};
+
 const post = async (request: VercelRequest, response: VercelResponse) => {
   const patientId = await verify(request);
   const patientInsuranceCard = request.body as PatientInsuranceCard;
@@ -69,6 +86,9 @@ export default async (request: VercelRequest, response: VercelResponse) => {
   await cors(request, response);
 
   switch (request.method) {
+    case "GET":
+      return get(request, response);
+
     case "POST":
       return post(request, response);
 

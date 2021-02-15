@@ -1,6 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Token, PatientRecord } from "./models";
-import { firebase, post } from "./utils";
+import { firebase, get, post } from "./utils";
+import { ApiResponse } from "~/utils/api";
+import { Sentry } from "~/utils/sentry";
 
 export const authenticate = createAsyncThunk(
   "AUTHENTICATION/AUTHENTICATE",
@@ -14,13 +16,22 @@ export const refreshProfile = createAsyncThunk<PatientRecord | null>(
     const { credential } = await firebase.auth().getRedirectResult();
 
     if (!credential) {
-      return null;
+      try {
+        const { data } = await get<ApiResponse<PatientRecord>>("/patients");
+        return data;
+      } catch (error) {
+        Sentry.captureException(error);
+
+        return null;
+      }
     }
 
-    return await post<PatientRecord>("/patients", {
+    const { data } = await post<ApiResponse<PatientRecord>>("/patients", {
       accessToken: (credential as any).accessToken,
       accessTokenSecret: (credential as any).secret,
     });
+
+    return data;
   }
 );
 

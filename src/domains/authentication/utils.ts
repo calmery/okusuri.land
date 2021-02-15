@@ -19,6 +19,15 @@ export { firebase };
 
 // API
 
+export const get: typeof api.get = (endpoint, options) =>
+  api.post(endpoint, {
+    ...options,
+    headers: {
+      ...options,
+      Authorization: `Token ${store.getState().authentication.token}`,
+    },
+  });
+
 export const post: typeof api.post = (endpoint, data, options) =>
   api.post(endpoint, data, {
     ...options,
