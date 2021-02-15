@@ -34,7 +34,7 @@ const Login: React.FC = () => {
     };
   }, [handleClickLogInButton]);
 
-  return <Page>{html}</Page>;
+  return <Page title="おくすり手帳">{html}</Page>;
 };
 
 export default Login;

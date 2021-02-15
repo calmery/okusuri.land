@@ -13,7 +13,7 @@ const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
   const myPatientRecord = useSelector(selectors.profile);
 
   return (
-    <Page>
+    <Page title={`${patientRecord.name}さんのおくすり手帳`}>
       {myPatientRecord && myPatientRecord.id === patientRecord.id && (
         <span style={{ color: "crimson", fontSize: "large" }}>
           <br />

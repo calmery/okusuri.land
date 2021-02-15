@@ -1,4 +1,5 @@
 import { css, keyframes } from "@emotion/react";
+import Head from "next/head";
 import React from "react";
 import { BlogSwitch } from "./BlogSwitch";
 import { Menu } from "./Menu";
@@ -49,20 +50,26 @@ const menu = css`
 
 // Main
 
-export const Page: React.FC<{ children: React.ReactNode | string }> = ({
-  children,
-}) => (
-  <div css={container}>
-    <div css={menu}>
-      <Menu />
+export const Page: React.FC<{
+  children: React.ReactNode | string;
+  title?: string;
+}> = ({ children, title }) => (
+  <>
+    <Head>
+      <title>{title ? `${title} / おくすりランド` : "おくすりランド"}</title>
+    </Head>
+    <div css={container}>
+      <div css={menu}>
+        <Menu />
+      </div>
+      <div css={border} />
+      <div css={main}>
+        {typeof children === "string" && (
+          <div dangerouslySetInnerHTML={{ __html: children }} />
+        )}
+        {typeof children !== "string" && children}
+        <BlogSwitch />
+      </div>
     </div>
-    <div css={border} />
-    <div css={main}>
-      {typeof children === "string" && (
-        <div dangerouslySetInnerHTML={{ __html: children }} />
-      )}
-      {typeof children !== "string" && children}
-      <BlogSwitch />
-    </div>
-  </div>
+  </>
 );
