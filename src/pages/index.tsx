@@ -1,15 +1,9 @@
-import { useCallback } from "react";
-import { useDispatch } from "~/domains";
-import { actions } from "~/domains/authentication";
+import React from "react";
+import { Page } from "~/components/Page";
+import html from "~/static/index.html";
 
 const Index: React.FC = () => {
-  const dispatch = useDispatch();
-
-  const handleClickLogInButton = useCallback(() => {
-    dispatch(actions.authenticate());
-  }, []);
-
-  return <button onClick={handleClickLogInButton}>Log in with Twitter</button>;
+  return <Page>{html}</Page>;
 };
 
 export default Index;
