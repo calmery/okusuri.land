@@ -11,8 +11,8 @@ module.exports = {
 
     config.module.rules.push({
       test: /\.html$/,
-      use: 'raw-loader',
-    })
+      use: "raw-loader",
+    });
 
     return config;
   },
