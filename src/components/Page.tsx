@@ -38,11 +38,17 @@ const main = css`
   flex-grow: 1;
 `;
 
+const menu = css`
+  width: 18%;
+`;
+
 // Main
 
 export const Page: React.FC<{ children: string }> = ({ children }) => (
   <div css={container}>
-    <Menu />
+    <div css={menu}>
+      <Menu />
+    </div>
     <div css={border} />
     <div css={main} dangerouslySetInnerHTML={{ __html: children }} />
   </div>
