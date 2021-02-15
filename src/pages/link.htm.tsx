@@ -1,9 +1,9 @@
 import React from "react";
 import { Page } from "~/components/Page";
-import html from "~/static/illusts.html";
+import html from "~/static/link.html";
 
-const Index: React.FC = () => {
+const Link: React.FC = () => {
   return <Page>{html}</Page>;
 };
 
-export default Index;
+export default Link;
