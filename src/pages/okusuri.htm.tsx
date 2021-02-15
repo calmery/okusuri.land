@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "~/domains";
 import { actions, selectors } from "~/domains/authentication";
 import html from "~/static/okusuri.html";
 
-const Login: React.FC = () => {
+const Okusuri: React.FC = () => {
   const dispatch = useDispatch();
   const { push } = useRouter();
   const profile = useSelector(selectors.profile);
@@ -37,4 +37,4 @@ const Login: React.FC = () => {
   return <Page title="おくすり手帳">{html}</Page>;
 };
 
-export default Login;
+export default Okusuri;
