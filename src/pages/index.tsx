@@ -1,9 +1,9 @@
-import React from "react";
-import { Page } from "~/components/Page";
-import html from "~/static/index.html";
+import { GetServerSideProps } from "next";
 
-const Index: React.FC = () => {
-  return <Page>{html}</Page>;
+export { default } from "./index.htm";
+
+export const getServerSideProps: GetServerSideProps = async ({ res }) => {
+  res.statusCode = 301;
+  res.setHeader("Location", `/index.htm`);
+  return { props: {} };
 };
-
-export default Index;
