@@ -1,12 +1,15 @@
+import { DefaultSeo } from "next-seo";
 import { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import React, { useEffect } from "react";
 import { Provider } from "react-redux";
+import { DefaultHead } from "~/components/DefaultHead";
 import { store } from "~/domains";
 import { actions } from "~/domains/authentication";
 import { firebase } from "~/domains/authentication/utils";
 import "~/utils/sentry";
 import "~/styles/globals.scss";
+import { defaultSeoProps } from "~/utils/next-seo";
 
 const App = ({ Component, pageProps }: AppProps) => {
   const { query } = useRouter();
@@ -31,9 +34,13 @@ const App = ({ Component, pageProps }: AppProps) => {
   }, []);
 
   return (
-    <Provider store={store}>
-      <Component {...pageProps} />
-    </Provider>
+    <>
+      <DefaultHead />
+      <DefaultSeo {...defaultSeoProps} />
+      <Provider store={store}>
+        <Component {...pageProps} />
+      </Provider>
+    </>
   );
 };
 

@@ -1,0 +1,22 @@
+{
+  "background_color": "#FFF",
+  "description": "おくすりランドは、処方されたおくすりを見ることができるサイトです。",
+  "display": "browser",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "/icon.png",
+      "type": "image/png"
+    },
+    {
+      "sizes": "512x512",
+      "src": "/icon-512x512.png",
+      "type": "image/png"
+    }
+  ],
+  "lang": "ja_JP",
+  "name": "おくすりランド",
+  "short_name": "おくすりランド",
+  "start_url": "/",
+  "theme_color": "#FFF"
+}
