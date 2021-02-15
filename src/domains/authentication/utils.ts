@@ -20,7 +20,7 @@ export { firebase };
 // API
 
 export const get: typeof api.get = (endpoint, options) =>
-  api.post(endpoint, {
+  api.get(endpoint, {
     ...options,
     headers: {
       ...options,
