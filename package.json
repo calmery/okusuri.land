@@ -52,7 +52,7 @@
   "name": "okusuri.land",
   "private": true,
   "scripts": {
-    "build": "next build && node scripts/insert-noneme-aa-to-html.js && node scripts/generate-sitemap.js",
+    "build": "next build && node scripts/generate-sitemap.js",
     "lint": "run-s lint:eslint lint:prettier",
     "lint:eslint": "eslint --ext .ts --fix --ignore-path .gitignore .",
     "lint:prettier": "prettier --write .",
