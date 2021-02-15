@@ -57,6 +57,7 @@ export const Page: React.FC<{
   <>
     <Head>
       <title>{title ? `${title} / おくすりランド` : "おくすりランド"}</title>
+      <script src="/externals/130719tinkerbell-min.js"></script>
     </Head>
     <div css={container}>
       <div css={menu}>

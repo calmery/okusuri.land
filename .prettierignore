@@ -1,4 +1,4 @@
 .next/
-src/externals/
+public/externals/
 src/static/
 workspace/
