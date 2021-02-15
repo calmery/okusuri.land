@@ -2,6 +2,7 @@ const path = require("path");
 
 module.exports = {
   poweredByHeader: false,
+  target: "serverless",
   webpack: (config, options) => {
     config.resolve.alias["~"] = path.resolve(__dirname, "src");
 
