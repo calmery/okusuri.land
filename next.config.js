@@ -9,6 +9,11 @@ module.exports = {
       config.resolve.alias["@sentry/node"] = "@sentry/browser";
     }
 
+    config.module.rules.push({
+      test: /\.html$/,
+      use: 'raw-loader',
+    })
+
     return config;
   },
 };
