@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import React, { useCallback, useEffect, useLayoutEffect } from "react";
 import { Page } from "~/components/Page";
@@ -37,4 +38,6 @@ const Okusuri: React.FC = () => {
   return <Page title="おくすり手帳">{html}</Page>;
 };
 
-export default Okusuri;
+export default dynamic(() => Promise.resolve(Okusuri), {
+  ssr: false,
+});
