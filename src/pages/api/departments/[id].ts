@@ -92,7 +92,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   const onsetDiseaseIds: DiseaseId[] = [];
   const patientDiseaseIds = (
-    (await getPatientDiseases(departmentId, patientId)) || []
+    (await getPatientDiseases(patientId, departmentId)) || []
   ).map(({ diseaseId }) => diseaseId);
 
   diseases.forEach((disease) => {

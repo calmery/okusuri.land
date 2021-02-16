@@ -41,8 +41,8 @@ export const transaction = (
 // Main
 
 export const getPatientDiseases = (
-  departmentId: DepartmentId,
-  patientId: string
+  patientId: string,
+  departmentId?: DepartmentId
 ) =>
   db((prisma) =>
     prisma.patientDisease.findMany({
