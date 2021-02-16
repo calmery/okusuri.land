@@ -111,38 +111,6 @@ export const isPatientExists = (patientId: string) =>
     return !!patient;
   });
 
-export const upsertPatient = (
-  patientId: string,
-  patientInsuranceCard: PatientInsuranceCard
-) =>
-  db((prisma) =>
-    prisma.patient.upsert({
-      where: {
-        id: patientId,
-      },
-      update: patientInsuranceCard,
-      create: {
-        ...patientInsuranceCard,
-        id: patientId,
-      },
-    })
-  );
-
-export const createPatientDisease = (
-  departmentId: DepartmentId,
-  patientId: string,
-  diseaseId: DiseaseId
-) =>
-  db((prisma) =>
-    prisma.patientDisease.create({
-      data: {
-        departmentId,
-        diseaseId,
-        patientId,
-      },
-    })
-  );
-
 export const upsertPatientPhysicalCondition = (
   departmentId: DepartmentId,
   patientId: string,
@@ -178,19 +146,47 @@ export const upsertPatientPhysicalCondition = (
     });
   });
 
+// `transaction` 関数に渡すため `$connect` や `$disconnect` を呼んではならない
+
+export const upsertPatient = (
+  patientId: string,
+  patientInsuranceCard: PatientInsuranceCard
+) =>
+  prisma.patient.upsert({
+    where: {
+      id: patientId,
+    },
+    update: patientInsuranceCard,
+    create: {
+      ...patientInsuranceCard,
+      id: patientId,
+    },
+  });
+
+export const createPatientDisease = (
+  departmentId: DepartmentId,
+  patientId: string,
+  diseaseId: DiseaseId
+) =>
+  prisma.patientDisease.create({
+    data: {
+      departmentId,
+      diseaseId,
+      patientId,
+    },
+  });
+
 export const upsertPatientRecord = (
   patientId: string,
   patientRecord: Omit<PatientRecord, "diseases">
 ) =>
-  db(async (prisma) =>
-    prisma.patientRecord.upsert({
-      where: {
-        patientId,
-      },
-      create: {
-        ...patientRecord,
-        patientId,
-      },
-      update: patientRecord,
-    })
-  );
+  prisma.patientRecord.upsert({
+    where: {
+      patientId,
+    },
+    create: {
+      ...patientRecord,
+      patientId,
+    },
+    update: patientRecord,
+  });
