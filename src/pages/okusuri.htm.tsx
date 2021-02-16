@@ -9,6 +9,7 @@ import html from "~/static/okusuri.html";
 const Okusuri: React.FC = () => {
   const dispatch = useDispatch();
   const { push } = useRouter();
+  const isRefreshing = useSelector(selectors.isRefreshing);
   const profile = useSelector(selectors.profile);
 
   const handleClickLogInButton = useCallback(() => {
@@ -35,7 +36,7 @@ const Okusuri: React.FC = () => {
     };
   }, [handleClickLogInButton]);
 
-  if (profile) {
+  if (isRefreshing || profile) {
     return <Page title="おくすり手帳" />;
   }
 
