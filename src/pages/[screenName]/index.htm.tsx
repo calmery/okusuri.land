@@ -1,8 +1,8 @@
 import { GetServerSideProps, NextPage } from "next";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Page } from "~/components/Page";
-import { useSelector } from "~/domains";
-import { selectors } from "~/domains/authentication";
+import { useDispatch, useSelector } from "~/domains";
+import { actions, selectors } from "~/domains/authentication";
 import { useDepartments } from "~/hooks/useDepartments";
 import { Disease } from "~/types/Disease";
 import { Patient } from "~/types/Patient";
@@ -11,6 +11,7 @@ import { Sentry } from "~/utils/sentry";
 
 const Patients: NextPage<Patient> = ({ diseases, record }) => {
   const { departments } = useDepartments();
+  const dispatch = useDispatch();
   const myPatientRecord = useSelector(selectors.profile);
   const patientDiseases = useMemo<{ [key in string]: Disease[] }>(() => {
     if (!departments) {
@@ -31,6 +32,11 @@ const Patients: NextPage<Patient> = ({ diseases, record }) => {
     }, {});
   }, [departments, diseases]);
 
+  const handleClickLogOutButton = useCallback((event: React.MouseEvent) => {
+    event.preventDefault();
+    dispatch(actions.logOut());
+  }, []);
+
   return (
     <Page title={`${record.name}さんのおくすり手帳`}>
       {myPatientRecord && myPatientRecord.id === record.id && (
@@ -47,6 +53,11 @@ const Patients: NextPage<Patient> = ({ diseases, record }) => {
               Twitterにシェアする
             </a>
           </span>
+          <br />
+          <br />
+          <a href="#" onClick={handleClickLogOutButton}>
+            ログアウトする
+          </a>
           <br />
         </>
       )}

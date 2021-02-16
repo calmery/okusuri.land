@@ -4,10 +4,12 @@ import { firebase, get, post } from "./utils";
 import { ApiResponse } from "~/utils/api";
 import { Sentry } from "~/utils/sentry";
 
-export const authenticate = createAsyncThunk(
-  "AUTHENTICATION/AUTHENTICATE",
-  () =>
-    firebase.auth().signInWithRedirect(new firebase.auth.TwitterAuthProvider())
+export const logIn = createAsyncThunk("AUTHENTICATION/LOGIN", () =>
+  firebase.auth().signInWithRedirect(new firebase.auth.TwitterAuthProvider())
+);
+
+export const logOut = createAsyncThunk("AUTHENTICATION/LOGOUT", () =>
+  firebase.auth().signOut()
 );
 
 export const refreshProfile = createAsyncThunk<PatientRecord | null>(

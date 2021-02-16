@@ -12,8 +12,9 @@ const Okusuri: React.FC = () => {
   const isRefreshing = useSelector(selectors.isRefreshing);
   const profile = useSelector(selectors.profile);
 
-  const handleClickLogInButton = useCallback(() => {
-    dispatch(actions.authenticate());
+  const handleClickLogInButton = useCallback((event: Event) => {
+    event.preventDefault();
+    dispatch(actions.logIn());
   }, []);
 
   useEffect(() => {
