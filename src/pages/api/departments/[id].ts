@@ -82,6 +82,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* 更新した PhysicalCondition の値をデータベースに反映する */
 
+  // ToDo: 下の `transaction` 関数に混ぜたい
   await upsertPatientPhysicalCondition(
     departmentId,
     patientId,
