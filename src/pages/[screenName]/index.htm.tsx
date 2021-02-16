@@ -75,6 +75,13 @@ const Patients: NextPage<Patient> = ({ diseases, record }) => {
                 <strong>{department.name}</strong>
               </a>
 
+              {!patientDiseases[department.id].length && (
+                <div>
+                  <br />
+                  まだおくすりを貰っていません！
+                </div>
+              )}
+
               {patientDiseases[department.id].map((disease) => {
                 return (
                   <div key={disease.id}>
