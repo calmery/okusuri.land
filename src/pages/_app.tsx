@@ -9,11 +9,20 @@ import { actions } from "~/domains/authentication";
 import { firebase } from "~/domains/authentication/utils";
 import "~/utils/sentry";
 import "~/styles/globals.scss";
+import * as GA from "~/utils/google-analytics";
 import { defaultSeoProps } from "~/utils/next-seo";
 
 const App = ({ Component, pageProps }: AppProps) => {
-  const { query } = useRouter();
-  const { debug } = query;
+  const router = useRouter();
+  const { debug } = router.query;
+
+  useEffect(() => {
+    router.events.on("routeChangeComplete", GA.changeRoute);
+
+    return () => {
+      router.events.off("routeChangeComplete", GA.changeRoute);
+    };
+  }, [router.events]);
 
   useEffect(() => {
     document.oncontextmenu = () => {

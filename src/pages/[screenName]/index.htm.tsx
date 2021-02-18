@@ -1,16 +1,27 @@
 import { GetServerSideProps, NextPage } from "next";
-import React from "react";
+import React, { useCallback } from "react";
 import { Page } from "~/components/Page";
 import { useSelector } from "~/domains";
 import { selectors } from "~/domains/authentication";
 import { PatientRecord } from "~/domains/authentication/models";
 import { ApiResponse, get } from "~/utils/api";
+import * as GA from "~/utils/google-analytics";
 import { Sentry } from "~/utils/sentry";
 
 const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
   patientRecord,
 }) => {
   const myPatientRecord = useSelector(selectors.profile);
+
+  const handleClickTwitterShareButton = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      GA.shareMyPage(patientRecord.screenName);
+      location.href =
+        "http://twitter.com/share?url=${window.location.href}&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89";
+    },
+    [patientRecord.screenName]
+  );
 
   return (
     <Page title={`${patientRecord.name}さんのおくすり手帳`}>
@@ -22,9 +33,7 @@ const Patients: NextPage<{ patientRecord: PatientRecord }> = ({
             <br />
           </span>
           <span style={{ fontSize: "x-large" }}>
-            <a
-              href={`http://twitter.com/share?url=${window.location.href}&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89`}
-            >
+            <a href="#" onClick={handleClickTwitterShareButton}>
               Twitterにシェアする
             </a>
           </span>
