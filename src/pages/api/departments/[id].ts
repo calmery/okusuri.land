@@ -82,6 +82,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* 更新した PhysicalCondition の値をデータベースに反映する */
 
+  // ToDo: 下の `transaction` 関数に混ぜたい
   await upsertPatientPhysicalCondition(
     departmentId,
     patientId,
@@ -92,7 +93,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   const onsetDiseaseIds: DiseaseId[] = [];
   const patientDiseaseIds = (
-    (await getPatientDiseases(departmentId, patientId)) || []
+    (await getPatientDiseases(patientId, departmentId)) || []
   ).map(({ diseaseId }) => diseaseId);
 
   diseases.forEach((disease) => {

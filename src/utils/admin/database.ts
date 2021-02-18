@@ -1,4 +1,4 @@
-import { PatientPhysicalCondition, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { Sentry } from "../sentry";
 import {
   PatientInsuranceCard,
@@ -9,128 +9,150 @@ import { DiseaseId } from "~/types/Disease";
 
 export const prisma = new PrismaClient();
 
-// Helper Functions
-
-export const transaction = async (
-  transactions: Parameters<typeof prisma.$transaction>[0]
+const db = async <T extends any>(
+  fn: (prisma: PrismaClient<Prisma.PrismaClientOptions, never>) => Promise<T>
 ) => {
   try {
     await prisma.$connect();
-    await prisma.$transaction(transactions);
-
-    return true;
-  } catch (error) {
-    Sentry.captureException(error);
-
-    return false;
-  } finally {
+    const result = await fn(prisma);
     await prisma.$disconnect();
+    return result;
+  } catch (error) {
+    await prisma.$disconnect();
+    throw error;
   }
 };
 
+// Helper Functions
+
+export const transaction = (
+  transactions: Parameters<typeof prisma.$transaction>[0]
+) =>
+  db(async (prisma) => {
+    try {
+      await prisma.$transaction(transactions);
+      return true;
+    } catch (error) {
+      Sentry.captureException(error);
+      return false;
+    }
+  });
+
 // Main
 
-export const getPatientDiseases = async (
+export const getPatientDiseases = (
+  patientId: string,
+  departmentId?: DepartmentId
+) =>
+  db((prisma) =>
+    prisma.patientDisease.findMany({
+      where: {
+        departmentId,
+        patientId,
+      },
+    })
+  );
+
+export const getPatientPhysicalCondition = (
   departmentId: DepartmentId,
   patientId: string
-) => {
-  await prisma.$connect();
+) =>
+  db((prisma) =>
+    prisma.patientPhysicalCondition.findFirst({
+      where: {
+        departmentId,
+        patientId,
+      },
+    })
+  );
 
-  const patientDiseases = await prisma.patientDisease.findMany({
-    where: {
-      departmentId,
-      patientId,
-    },
+export const getPatientRecordByPatientId = (patientId: string) =>
+  db((prisma) =>
+    prisma.patientRecord.findFirst({
+      orderBy: {
+        // Twitter の screen_name の変更によって既存の PatientRecord と screen_name が重複する可能性がある
+        // 重複自体に問題はないため、レコードが複数存在する場合を考慮して updatedAt を降順でソートする
+        // 過去にログインして、screen_name を変更した人はもう一度ログインし直すことで新しい screen_name に更新される
+        updatedAt: "desc",
+      },
+      where: {
+        patientId: {
+          equals: patientId,
+        },
+      },
+    })
+  );
+
+export const getPatientRecordByScreenName = (screenName: string) =>
+  db((prisma) =>
+    prisma.patientRecord.findFirst({
+      orderBy: {
+        // Twitter の screen_name の変更によって既存の PatientRecord と screen_name が重複する可能性がある
+        // 重複自体に問題はないため、レコードが複数存在する場合を考慮して updatedAt を降順でソートする
+        // 過去にログインして、screen_name を変更した人はもう一度ログインし直すことで新しい screen_name に更新される
+        updatedAt: "desc",
+      },
+      where: {
+        screenName: {
+          equals: screenName,
+        },
+      },
+    })
+  );
+
+export const isPatientExists = (patientId: string) =>
+  db(async (prisma) => {
+    const patient = await prisma.patient.findUnique({
+      where: {
+        id: patientId,
+      },
+    });
+
+    return !!patient;
   });
 
-  await prisma.$disconnect();
-
-  return patientDiseases;
-};
-
-export const getPatientPhysicalCondition = async (
+export const upsertPatientPhysicalCondition = (
   departmentId: DepartmentId,
-  patientId: string
-) => {
-  await prisma.$connect();
+  patientId: string,
+  json: Record<string, number>
+) =>
+  db(async (prisma) => {
+    const id = (
+      await prisma.patientPhysicalCondition.findFirst({
+        where: {
+          departmentId,
+          patientId,
+        },
+      })
+    )?.id;
 
-  const physicalCondition = await prisma.patientPhysicalCondition.findFirst({
-    where: {
-      departmentId,
-      patientId,
-    },
-  });
+    if (!id) {
+      return prisma.patientPhysicalCondition.create({
+        data: {
+          departmentId,
+          json,
+          patientId,
+        },
+      });
+    }
 
-  await prisma.$disconnect();
-
-  return physicalCondition;
-};
-
-export const getPatientRecordByPatientId = async (patientId: string) => {
-  await prisma.$connect();
-
-  const patientRecord = await prisma.patientRecord.findFirst({
-    orderBy: {
-      // Twitter の screen_name の変更によって既存の PatientRecord と screen_name が重複する可能性がある
-      // 重複自体に問題はないため、レコードが複数存在する場合を考慮して updatedAt を降順でソートする
-      // 過去にログインして、screen_name を変更した人はもう一度ログインし直すことで新しい screen_name に更新される
-      updatedAt: "desc",
-    },
-    where: {
-      patientId: {
-        equals: patientId,
+    return prisma.patientPhysicalCondition.update({
+      where: {
+        id,
       },
-    },
-  });
-
-  await prisma.$disconnect();
-
-  return patientRecord;
-};
-
-export const getPatientRecordByScreenName = async (screenName: string) => {
-  await prisma.$connect();
-
-  const patientRecord = await prisma.patientRecord.findFirst({
-    orderBy: {
-      // Twitter の screen_name の変更によって既存の PatientRecord と screen_name が重複する可能性がある
-      // 重複自体に問題はないため、レコードが複数存在する場合を考慮して updatedAt を降順でソートする
-      // 過去にログインして、screen_name を変更した人はもう一度ログインし直すことで新しい screen_name に更新される
-      updatedAt: "desc",
-    },
-    where: {
-      screenName: {
-        equals: screenName,
+      data: {
+        json,
       },
-    },
+    });
   });
 
-  await prisma.$disconnect();
+// `transaction` 関数に渡すため `$connect` や `$disconnect` を呼んではならない
 
-  return patientRecord;
-};
-
-export const isPatientExists = async (patientId: string) => {
-  await prisma.$connect();
-
-  const patient = await prisma.patient.findUnique({
-    where: {
-      id: patientId,
-    },
-  });
-
-  await prisma.$disconnect();
-
-  return !!patient;
-};
-
-export const upsertPatient = async (
+export const upsertPatient = (
   patientId: string,
   patientInsuranceCard: PatientInsuranceCard
-) => {
-  await prisma.$connect();
-
-  const patient = await prisma.patient.upsert({
+) =>
+  prisma.patient.upsert({
     where: {
       id: patientId,
     },
@@ -141,19 +163,12 @@ export const upsertPatient = async (
     },
   });
 
-  await prisma.$disconnect();
-
-  return patient;
-};
-
-export const createPatientDisease = async (
+export const createPatientDisease = (
   departmentId: DepartmentId,
   patientId: string,
   diseaseId: DiseaseId
-) => {
-  await prisma.$connect();
-
-  const patientDisease = await prisma.patientDisease.create({
+) =>
+  prisma.patientDisease.create({
     data: {
       departmentId,
       diseaseId,
@@ -161,60 +176,11 @@ export const createPatientDisease = async (
     },
   });
 
-  await prisma.$disconnect();
-
-  return patientDisease;
-};
-
-export const upsertPatientPhysicalCondition = async (
-  departmentId: DepartmentId,
-  patientId: string,
-  json: Record<string, number>
-) => {
-  await prisma.$connect();
-
-  const id = (
-    await prisma.patientPhysicalCondition.findFirst({
-      where: {
-        departmentId,
-        patientId,
-      },
-    })
-  )?.id;
-
-  let physicalCondition: PatientPhysicalCondition;
-
-  if (id) {
-    physicalCondition = await prisma.patientPhysicalCondition.update({
-      where: {
-        id,
-      },
-      data: {
-        json,
-      },
-    });
-  } else {
-    physicalCondition = await prisma.patientPhysicalCondition.create({
-      data: {
-        departmentId,
-        json,
-        patientId,
-      },
-    });
-  }
-
-  await prisma.$disconnect();
-
-  return physicalCondition;
-};
-
-export const upsertPatientRecord = async (
+export const upsertPatientRecord = (
   patientId: string,
   patientRecord: Omit<PatientRecord, "diseases">
-) => {
-  await prisma.$connect();
-
-  const nextPatientRecord = await prisma.patientRecord.upsert({
+) =>
+  prisma.patientRecord.upsert({
     where: {
       patientId,
     },
@@ -224,8 +190,3 @@ export const upsertPatientRecord = async (
     },
     update: patientRecord,
   });
-
-  await prisma.$disconnect();
-
-  return nextPatientRecord;
-};

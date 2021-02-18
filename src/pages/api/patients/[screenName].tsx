@@ -1,5 +1,10 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { getPatientRecordByScreenName } from "~/utils/admin/database";
+import { DepartmentId } from "~/types/Department";
+import { Patient } from "~/types/Patient";
+import {
+  getPatientDiseases,
+  getPatientRecordByScreenName,
+} from "~/utils/admin/database";
 
 // CRUD
 
@@ -12,14 +17,23 @@ const get = async ({ query }: VercelRequest, response: VercelResponse) => {
     return response.status(404).end();
   }
 
-  response.send({
-    data: {
+  const patientDiseases = await getPatientDiseases(patientRecord.patientId);
+
+  const data: Patient = {
+    diseases: patientDiseases.map((patientDisease) => ({
+      createdAt: patientDisease.createdAt.toString(),
+      departmentId: patientDisease.departmentId as DepartmentId,
+      diseaseId: patientDisease.diseaseId,
+    })),
+    record: {
       id: patientRecord.id,
       image: patientRecord.image,
       name: patientRecord.name,
       screenName: patientRecord.screenName,
     },
-  });
+  };
+
+  response.send({ data });
 };
 
 // Main

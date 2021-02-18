@@ -18,6 +18,9 @@ const initialState: State = {
 
 export const reducer = createReducer(initialState, (builder) =>
   builder
+    .addCase(actions.logOut.fulfilled, (state) => {
+      state.profile = initialState.profile;
+    })
     .addCase(actions.refreshProfile.fulfilled, (state, action) => {
       state.isRefreshingProfile = false;
       state.profile = action.payload;
