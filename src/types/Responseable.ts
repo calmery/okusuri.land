@@ -43,6 +43,6 @@ export type ResponseablePatientRecord = {
 
 export type ResponseablePrescription = {
   prescription: {
-    diseases: GraphCmsDiseaseId[];
+    diseaseIds: GraphCmsDiseaseId[];
   };
 };

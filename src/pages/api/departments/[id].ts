@@ -144,7 +144,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   const data: ResponseablePrescription = {
     prescription: {
-      diseases: onsetDiseaseIds,
+      diseaseIds: onsetDiseaseIds,
     },
   };
 
