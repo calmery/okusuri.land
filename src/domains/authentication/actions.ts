@@ -19,7 +19,7 @@ export const refreshProfile = createAsyncThunk<PatientRecord | null>(
 
     if (!credential) {
       try {
-        const { data } = await get<ApiResponse<PatientRecord>>("/patients");
+        const { data } = await get<ApiResponse<PatientRecord>>("/reception");
         return data;
       } catch (error) {
         Sentry.captureException(error);
@@ -28,7 +28,7 @@ export const refreshProfile = createAsyncThunk<PatientRecord | null>(
       }
     }
 
-    const { data } = await post<ApiResponse<PatientRecord>>("/patients", {
+    const { data } = await post<ApiResponse<PatientRecord>>("/reception", {
       accessToken: (credential as any).accessToken,
       accessTokenSecret: (credential as any).secret,
     });
