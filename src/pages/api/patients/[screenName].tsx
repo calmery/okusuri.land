@@ -8,6 +8,7 @@ import {
 
 // CRUD
 
+/** { data: Patient } */
 const get = async ({ query }: VercelRequest, response: VercelResponse) => {
   const patientRecord = await getPatientRecordByScreenName(
     query.screenName as string

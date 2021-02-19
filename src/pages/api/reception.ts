@@ -5,6 +5,7 @@ import {
   PatientRecord,
 } from "~/domains/authentication/models";
 import { DepartmentId } from "~/types/Department";
+import { Patient } from "~/types/Patient";
 import { verify } from "~/utils/admin/authentication";
 import { cors } from "~/utils/admin/cors";
 import {
@@ -47,39 +48,31 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
   const patientId = await verify(request);
 
   if (!patientId) {
-    return response.send({
-      data: null,
-    });
+    return response.status(400).end();
   }
 
   const patientRecord = await getPatientRecordByPatientId(patientId);
   const patientDiseases = await getPatientDiseases(patientId);
 
   if (!patientRecord) {
-    return response.send({
-      data: null,
-    });
+    return response.status(404).end();
   }
 
-  const diseases = patientDiseases.map((patientDisease) => ({
-    createdAt: patientDisease.createdAt.toString(),
-    departmentId: patientDisease.departmentId as DepartmentId,
-    diseaseId: patientDisease.diseaseId,
-  }));
-
-  const record: PatientRecord = {
-    id: patientRecord.id,
-    image: patientRecord.image,
-    name: patientRecord.name,
-    screenName: patientRecord.screenName,
+  const data: Patient = {
+    diseases: patientDiseases.map((patientDisease) => ({
+      createdAt: patientDisease.createdAt.toString(),
+      departmentId: patientDisease.departmentId as DepartmentId,
+      diseaseId: patientDisease.diseaseId,
+    })),
+    record: {
+      id: patientRecord.id,
+      image: patientRecord.image,
+      name: patientRecord.name,
+      screenName: patientRecord.screenName,
+    },
   };
 
-  response.send({
-    data: {
-      diseases,
-      record,
-    },
-  });
+  response.send({ data });
 };
 
 const post = async (request: VercelRequest, response: VercelResponse) => {
@@ -103,25 +96,21 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     upsertPatientRecord(patientId, patientRecord),
   ]);
 
-  const diseases = patientDiseases.map((patientDisease) => ({
-    createdAt: patientDisease.createdAt.toString(),
-    departmentId: patientDisease.departmentId as DepartmentId,
-    diseaseId: patientDisease.diseaseId,
-  }));
-
-  const record: PatientRecord = {
-    id: patientRecord.id,
-    image: patientRecord.image,
-    name: patientRecord.name,
-    screenName: patientRecord.screenName,
+  const data: Patient = {
+    diseases: patientDiseases.map((patientDisease) => ({
+      createdAt: patientDisease.createdAt.toString(),
+      departmentId: patientDisease.departmentId as DepartmentId,
+      diseaseId: patientDisease.diseaseId,
+    })),
+    record: {
+      id: patientRecord.id,
+      image: patientRecord.image,
+      name: patientRecord.name,
+      screenName: patientRecord.screenName,
+    },
   };
 
-  response.send({
-    data: {
-      diseases,
-      record,
-    },
-  });
+  response.send({ data });
 };
 
 // Serverless Functions

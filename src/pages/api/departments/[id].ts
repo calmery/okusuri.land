@@ -5,7 +5,6 @@ import { verify } from "~/utils/admin/authentication";
 import {
   getDepartment,
   getDiseasesByDepartmentId,
-  createPrescription,
   getSymptomsByDepartmentId,
   isDepartmentExists,
 } from "~/utils/admin/cms";
@@ -19,6 +18,7 @@ import {
   upsertPatientPhysicalCondition,
 } from "~/utils/admin/database";
 
+/** { data: Department | null } */
 const get = async (request: VercelRequest, response: VercelResponse) => {
   const departmentId = encodeURIComponent(
     request.query.id as string
@@ -33,6 +33,7 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
   });
 };
 
+/** { data: { prescription: { diseases: DiseaseId[] } } */
 const post = async (request: VercelRequest, response: VercelResponse) => {
   /* Firebase で Token を検証、Patient の ID を取得する */
 
@@ -115,14 +116,6 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     }
   });
 
-  /* 処方箋を作成する */
-
-  const prescription = await createPrescription(onsetDiseaseIds);
-
-  if (!prescription) {
-    return response.status(503).end();
-  }
-
   /* データベースに発症した Disease を反映する */
 
   if (
@@ -139,7 +132,9 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   response.send({
     data: {
-      prescription,
+      prescription: {
+        diseases: onsetDiseaseIds,
+      },
     },
   });
 };
