@@ -4,9 +4,11 @@ import {
   PatientInsuranceCard,
   PatientRecord,
 } from "~/domains/authentication/models";
+import { DepartmentId } from "~/types/Department";
 import { verify } from "~/utils/admin/authentication";
 import { cors } from "~/utils/admin/cors";
 import {
+  getPatientDiseases,
   getPatientRecordByPatientId,
   transaction,
   upsertPatient,
@@ -51,6 +53,7 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
   }
 
   const patientRecord = await getPatientRecordByPatientId(patientId);
+  const patientDiseases = await getPatientDiseases(patientId);
 
   if (!patientRecord) {
     return response.send({
@@ -58,7 +61,13 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
     });
   }
 
-  const data: PatientRecord = {
+  const diseases = patientDiseases.map((patientDisease) => ({
+    createdAt: patientDisease.createdAt.toString(),
+    departmentId: patientDisease.departmentId as DepartmentId,
+    diseaseId: patientDisease.diseaseId,
+  }));
+
+  const record: PatientRecord = {
     id: patientRecord.id,
     image: patientRecord.image,
     name: patientRecord.name,
@@ -66,7 +75,10 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
   };
 
   response.send({
-    data,
+    data: {
+      diseases,
+      record,
+    },
   });
 };
 
@@ -84,20 +96,32 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
   }
 
   const patientRecord = await getPatientRecordFromTwitter(patientInsuranceCard);
+  const patientDiseases = await getPatientDiseases(patientId);
 
   await transaction([
     upsertPatient(patientId, patientInsuranceCard),
     upsertPatientRecord(patientId, patientRecord),
   ]);
 
-  const data: PatientRecord = {
+  const diseases = patientDiseases.map((patientDisease) => ({
+    createdAt: patientDisease.createdAt.toString(),
+    departmentId: patientDisease.departmentId as DepartmentId,
+    diseaseId: patientDisease.diseaseId,
+  }));
+
+  const record: PatientRecord = {
     id: patientRecord.id,
     image: patientRecord.image,
     name: patientRecord.name,
     screenName: patientRecord.screenName,
   };
 
-  response.send({ data });
+  response.send({
+    data: {
+      diseases,
+      record,
+    },
+  });
 };
 
 // Serverless Functions

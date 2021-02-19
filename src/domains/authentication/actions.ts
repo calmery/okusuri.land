@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Token, PatientRecord } from "./models";
 import { firebase, get, post } from "./utils";
+import { Disease } from "~/types/Disease";
 import { ApiResponse } from "~/utils/api";
 import { Sentry } from "~/utils/sentry";
 
@@ -19,8 +20,14 @@ export const refreshProfile = createAsyncThunk<PatientRecord | null>(
 
     if (!credential) {
       try {
-        const { data } = await get<ApiResponse<PatientRecord>>("/reception");
-        return data;
+        const { data } = await get<
+          ApiResponse<{
+            diseases: Disease[];
+            record: PatientRecord;
+          }>
+        >("/reception");
+
+        return data.record;
       } catch (error) {
         Sentry.captureException(error);
 
@@ -28,12 +35,17 @@ export const refreshProfile = createAsyncThunk<PatientRecord | null>(
       }
     }
 
-    const { data } = await post<ApiResponse<PatientRecord>>("/reception", {
+    const { data } = await post<
+      ApiResponse<{
+        diseases: Disease[];
+        record: PatientRecord;
+      }>
+    >("/reception", {
       accessToken: (credential as any).accessToken,
       accessTokenSecret: (credential as any).secret,
     });
 
-    return data;
+    return data.record;
   }
 );
 
