@@ -1,9 +1,12 @@
 import { gql, request as _request } from "graphql-request";
 import { Sentry } from "../sentry";
 import { key, setnx } from "./cache";
-import { Department, DepartmentId } from "~/types/Department";
-import { Disease } from "~/types/Disease";
-import { Symptom } from "~/types/Symptom";
+import {
+  GraphCmsDepartment,
+  GraphCmsDepartmentId,
+  GraphCmsDisease,
+  GraphCmsSymptom,
+} from "~/types/GraphCMS";
 import * as json from "~/utils/json";
 
 // Helper Functions
@@ -13,7 +16,9 @@ export const request = async <T extends unknown>(query: string): Promise<T> =>
 
 // Main
 
-export const getDiseasesByDepartmentId = async (departmentId: DepartmentId) => {
+export const getDiseasesByDepartmentId = async (
+  departmentId: GraphCmsDepartmentId
+) => {
   try {
     const cache = await setnx(
       key("cms", "get_diseases_by_department_id", departmentId),
@@ -49,7 +54,7 @@ export const getDiseasesByDepartmentId = async (departmentId: DepartmentId) => {
     );
 
     return json.parse<{
-      diseases: Disease[];
+      diseases: GraphCmsDisease[];
     }>(cache)!.diseases;
   } catch (error) {
     Sentry.captureException(error);
@@ -58,7 +63,7 @@ export const getDiseasesByDepartmentId = async (departmentId: DepartmentId) => {
   }
 };
 
-export const getDepartment = async (departmentId: DepartmentId) => {
+export const getDepartment = async (departmentId: GraphCmsDepartmentId) => {
   try {
     const cache = await setnx(key("cms", "get_department", departmentId), () =>
       request(
@@ -94,7 +99,7 @@ export const getDepartment = async (departmentId: DepartmentId) => {
       )
     );
 
-    return json.parse<{ department: Department }>(cache)!.department;
+    return json.parse<{ department: GraphCmsDepartment }>(cache)!.department;
   } catch (error) {
     Sentry.captureException(error);
 
@@ -142,7 +147,8 @@ export const getDepartments = async () => {
       )
     );
 
-    return json.parse<{ departments: Department[] }>(cache)!.departments;
+    return json.parse<{ departments: GraphCmsDepartment[] }>(cache)!
+      .departments;
   } catch (error) {
     Sentry.captureException(error);
 
@@ -150,7 +156,9 @@ export const getDepartments = async () => {
   }
 };
 
-export const getSymptomsByDepartmentId = async (departmentId: DepartmentId) => {
+export const getSymptomsByDepartmentId = async (
+  departmentId: GraphCmsDepartmentId
+) => {
   try {
     const cache = await setnx(
       key("cms", "get_symptoms_by_department_id", departmentId),
@@ -177,7 +185,7 @@ export const getSymptomsByDepartmentId = async (departmentId: DepartmentId) => {
         )
     );
 
-    return json.parse<{ symptoms: Symptom[] }>(cache)!.symptoms;
+    return json.parse<{ symptoms: GraphCmsSymptom[] }>(cache)!.symptoms;
   } catch (error) {
     Sentry.captureException(error);
 
@@ -185,7 +193,9 @@ export const getSymptomsByDepartmentId = async (departmentId: DepartmentId) => {
   }
 };
 
-export const isDepartmentExists = async (departmentId: DepartmentId) => {
+export const isDepartmentExists = async (
+  departmentId: GraphCmsDepartmentId
+) => {
   try {
     const cache = await setnx(
       key("cms", "is_department_exists", departmentId),
@@ -203,7 +213,8 @@ export const isDepartmentExists = async (departmentId: DepartmentId) => {
         )
     );
 
-    return !!json.parse<{ department: Department | null }>(cache)!.department;
+    return !!json.parse<{ department: GraphCmsDepartment | null }>(cache)!
+      .department;
   } catch (error) {
     Sentry.captureException(error);
 

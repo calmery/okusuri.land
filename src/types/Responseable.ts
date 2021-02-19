@@ -1,14 +1,23 @@
-import { Department, DepartmentId } from "./Department";
-import { Disease, DiseaseId } from "./Disease";
-import { Medicine } from "./Medicine";
+import {
+  GraphCmsDepartment,
+  GraphCmsDepartmentId,
+  GraphCmsDisease,
+  GraphCmsDiseaseId,
+  GraphCmsMedicine,
+} from "./GraphCMS";
+
+export type ResponseableDisease = Pick<
+  GraphCmsDisease,
+  "description" | "id" | "name"
+> & {
+  medicines: Pick<GraphCmsMedicine, "description" | "icon" | "name">[];
+};
 
 export type ResponseableDepartment = Pick<
-  Department,
+  GraphCmsDepartment,
   "description" | "id" | "icon" | "name" | "url"
 > & {
-  diseases: (Pick<Disease, "description" | "name"> & {
-    medicines: Pick<Medicine, "description" | "icon" | "name">[];
-  })[];
+  diseases: ResponseableDisease[];
 };
 
 // Patient
@@ -19,7 +28,7 @@ export type ResponseablePatient = {
 };
 
 export type ResponseablePatientDisease = {
-  departmentId: DepartmentId;
+  departmentId: GraphCmsDepartmentId;
   diseaseId: string;
   createdAt: string;
 };
@@ -34,6 +43,6 @@ export type ResponseablePatientRecord = {
 
 export type ResponseablePrescription = {
   prescription: {
-    diseases: DiseaseId[];
+    diseases: GraphCmsDiseaseId[];
   };
 };

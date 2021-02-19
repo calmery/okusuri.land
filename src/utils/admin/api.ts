@@ -1,16 +1,17 @@
 import { PatientDisease, PatientRecord } from "@prisma/client";
-import { Department, DepartmentId } from "~/types/Department";
+import { GraphCmsDepartment, GraphCmsDepartmentId } from "~/types/GraphCMS";
 import {
   ResponseableDepartment,
   ResponseablePatient,
 } from "~/types/Responseable";
 
 export const convertDepartmentToResponseableDepartment = (
-  department: Department
+  department: GraphCmsDepartment
 ): ResponseableDepartment => ({
   description: department.description,
   diseases: department.diseases.map((disease) => ({
     description: disease.description,
+    id: disease.id,
     medicines: disease.medicines.map((medicine) => ({
       description: medicine.description,
       icon: medicine.icon,
@@ -30,7 +31,7 @@ export const createResponseablePatient = (
 ): ResponseablePatient => ({
   diseases: patientDiseases.map((patientDisease) => ({
     createdAt: patientDisease.createdAt.toString(),
-    departmentId: patientDisease.departmentId as DepartmentId,
+    departmentId: patientDisease.departmentId as GraphCmsDepartmentId,
     diseaseId: patientDisease.diseaseId,
   })),
   record: {

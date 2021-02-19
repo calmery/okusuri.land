@@ -4,8 +4,7 @@ import { Page } from "~/components/Page";
 import { useDispatch, useSelector } from "~/domains";
 import { actions, selectors } from "~/domains/authentication";
 import { useDepartments } from "~/hooks/useDepartments";
-import { Disease } from "~/types/Disease";
-import { ResponseablePatient } from "~/types/Responseable";
+import { ResponseableDisease, ResponseablePatient } from "~/types/Responseable";
 import { ApiResponse, get } from "~/utils/api";
 import * as GA from "~/utils/google-analytics";
 import { Sentry } from "~/utils/sentry";
@@ -14,7 +13,9 @@ const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
   const { departments } = useDepartments();
   const dispatch = useDispatch();
   const myPatientRecord = useSelector(selectors.profile);
-  const patientDiseases = useMemo<{ [key in string]: Disease[] }>(() => {
+  const patientDiseases = useMemo<
+    { [key in string]: ResponseableDisease[] }
+  >(() => {
     if (!departments) {
       return {};
     }
@@ -110,7 +111,7 @@ const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
                     {disease.description}
                     <br />
                     {disease.medicines.map((medicine) => (
-                      <div key={medicine.id}>
+                      <div key={medicine.name}>
                         <br />
                         <img
                           src={medicine.icon.url}

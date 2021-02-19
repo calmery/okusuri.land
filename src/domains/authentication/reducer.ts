@@ -4,6 +4,7 @@ import { Token } from "./models";
 import { ResponseablePatientRecord } from "~/types/Responseable";
 
 export type State = {
+  firstUpdate: boolean;
   isRefreshingProfile: boolean;
   isRefreshingToken: boolean;
   profile: ResponseablePatientRecord | null;
@@ -11,6 +12,7 @@ export type State = {
 };
 
 const initialState: State = {
+  firstUpdate: false,
   isRefreshingProfile: false,
   isRefreshingToken: false,
   profile: null,
@@ -34,6 +36,7 @@ export const reducer = createReducer(initialState, (builder) =>
       state.profile = null;
     })
     .addCase(actions.refreshToken.fulfilled, (state, action) => {
+      state.firstUpdate = true;
       state.isRefreshingToken = false;
       state.token = action.payload;
     })
@@ -41,6 +44,7 @@ export const reducer = createReducer(initialState, (builder) =>
       state.isRefreshingToken = true;
     })
     .addCase(actions.refreshToken.rejected, (state) => {
+      state.firstUpdate = true;
       state.isRefreshingToken = false;
       state.token = null;
     })

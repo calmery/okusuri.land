@@ -1,7 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { Sentry } from "../sentry";
-import { DepartmentId } from "~/types/Department";
-import { DiseaseId } from "~/types/Disease";
+import { GraphCmsDepartmentId, GraphCmsDiseaseId } from "~/types/GraphCMS";
 import { PatientInsuranceCard } from "~/types/PatientInsuranceCard";
 
 export const prisma = new PrismaClient();
@@ -39,7 +38,7 @@ export const transaction = (
 
 export const getPatientDiseases = (
   patientId: string,
-  departmentId?: DepartmentId
+  departmentId?: GraphCmsDepartmentId
 ) =>
   db((prisma) =>
     prisma.patientDisease.findMany({
@@ -51,7 +50,7 @@ export const getPatientDiseases = (
   );
 
 export const getPatientPhysicalCondition = (
-  departmentId: DepartmentId,
+  departmentId: GraphCmsDepartmentId,
   patientId: string
 ) =>
   db((prisma) =>
@@ -109,7 +108,7 @@ export const isPatientExists = (patientId: string) =>
   });
 
 export const upsertPatientPhysicalCondition = (
-  departmentId: DepartmentId,
+  departmentId: GraphCmsDepartmentId,
   patientId: string,
   json: Record<string, number>
 ) =>
@@ -161,9 +160,9 @@ export const upsertPatient = (
   });
 
 export const createPatientDisease = (
-  departmentId: DepartmentId,
+  departmentId: GraphCmsDepartmentId,
   patientId: string,
-  diseaseId: DiseaseId
+  diseaseId: GraphCmsDiseaseId
 ) =>
   prisma.patientDisease.create({
     data: {

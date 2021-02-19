@@ -1,6 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { DepartmentId } from "~/types/Department";
-import { DiseaseId } from "~/types/Disease";
+import { GraphCmsDepartmentId, GraphCmsDiseaseId } from "~/types/GraphCMS";
 import {
   ResponseableDepartment,
   ResponseablePrescription,
@@ -27,7 +26,7 @@ import {
 const get = async (request: VercelRequest, response: VercelResponse) => {
   const departmentId = encodeURIComponent(
     request.query.id as string
-  ) as DepartmentId;
+  ) as GraphCmsDepartmentId;
 
   if (!(await isDepartmentExists(departmentId))) {
     return response.status(404).end();
@@ -62,7 +61,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     force?: boolean;
     symptoms: { [key: string]: number };
   }>;
-  const departmentId = request.query.id as DepartmentId;
+  const departmentId = request.query.id as GraphCmsDepartmentId;
 
   if (!currentSymptoms || !(await isDepartmentExists(departmentId))) {
     return response.status(400).end();
@@ -106,7 +105,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* 更新した PhysicalCondition の値を元に Disease の判定を行う */
 
-  const onsetDiseaseIds: DiseaseId[] = [];
+  const onsetDiseaseIds: GraphCmsDiseaseId[] = [];
   const patientDiseaseIds = (
     (await getPatientDiseases(patientId, departmentId)) || []
   ).map(({ diseaseId }) => diseaseId);
