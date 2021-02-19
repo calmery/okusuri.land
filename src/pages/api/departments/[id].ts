@@ -44,9 +44,10 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* GraphCMS に指定された Department が存在するか、ユーザからのリクエストが正しいかを確認する */
 
-  const currentSymptoms = (request.body as Partial<{
+  const { force = false, symptoms: currentSymptoms } = request.body as Partial<{
+    force?: boolean;
     symptoms: { [key: string]: number };
-  }>)?.symptoms;
+  }>;
   const departmentId = request.query.id as DepartmentId;
 
   if (!currentSymptoms || !(await isDepartmentExists(departmentId))) {
@@ -72,7 +73,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
     if (
       !isNaN(currentSymptoms[symptom.key]) &&
-      Math.abs(currentSymptoms[symptom.key]) <= symptom.maximumChange
+      (force || Math.abs(currentSymptoms[symptom.key]) <= symptom.maximumChange)
     ) {
       value += currentSymptoms[symptom.key];
     }
