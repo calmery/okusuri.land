@@ -5,12 +5,12 @@ import { useDispatch, useSelector } from "~/domains";
 import { actions, selectors } from "~/domains/authentication";
 import { useDepartments } from "~/hooks/useDepartments";
 import { Disease } from "~/types/Disease";
-import { Patient } from "~/types/Patient";
+import { ResponseablePatient } from "~/types/Responseable";
 import { ApiResponse, get } from "~/utils/api";
 import * as GA from "~/utils/google-analytics";
 import { Sentry } from "~/utils/sentry";
 
-const Patients: NextPage<Patient> = ({ diseases, record }) => {
+const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
   const { departments } = useDepartments();
   const dispatch = useDispatch();
   const myPatientRecord = useSelector(selectors.profile);
@@ -50,7 +50,7 @@ const Patients: NextPage<Patient> = ({ diseases, record }) => {
 
   return (
     <Page title={`${record.name}さんのおくすり手帳`}>
-      {myPatientRecord && myPatientRecord.id === record.id && (
+      {myPatientRecord && myPatientRecord.screenName === record.screenName && (
         <>
           <span style={{ color: "crimson", fontSize: "large" }}>
             <br />
@@ -143,7 +143,7 @@ const Patients: NextPage<Patient> = ({ diseases, record }) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   try {
-    const { data } = await get<ApiResponse<Patient>>(
+    const { data } = await get<ApiResponse<ResponseablePatient>>(
       `/patients/${(query.screenName as string).slice(1)}`
     );
     return {

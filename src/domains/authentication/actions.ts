@@ -1,7 +1,11 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Token, PatientRecord } from "./models";
+import { Token } from "./models";
 import { firebase, get, post } from "./utils";
-import { Disease } from "~/types/Disease";
+import { PatientInsuranceCard } from "~/types/PatientInsuranceCard";
+import {
+  ResponseablePatient,
+  ResponseablePatientRecord,
+} from "~/types/Responseable";
 import { ApiResponse } from "~/utils/api";
 import { Sentry } from "~/utils/sentry";
 
@@ -13,19 +17,16 @@ export const logOut = createAsyncThunk("AUTHENTICATION/LOGOUT", () =>
   firebase.auth().signOut()
 );
 
-export const refreshProfile = createAsyncThunk<PatientRecord | null>(
+export const refreshProfile = createAsyncThunk<ResponseablePatientRecord | null>(
   "AUTHENTICATION/REFRESH_PROFILE",
   async () => {
     const { credential } = await firebase.auth().getRedirectResult();
 
     if (!credential) {
       try {
-        const { data } = await get<
-          ApiResponse<{
-            diseases: Disease[];
-            record: PatientRecord;
-          }>
-        >("/reception");
+        const { data } = await get<ApiResponse<ResponseablePatient>>(
+          "/reception"
+        );
 
         return data.record;
       } catch (error) {
@@ -35,15 +36,15 @@ export const refreshProfile = createAsyncThunk<PatientRecord | null>(
       }
     }
 
-    const { data } = await post<
-      ApiResponse<{
-        diseases: Disease[];
-        record: PatientRecord;
-      }>
-    >("/reception", {
+    const payload: PatientInsuranceCard = {
       accessToken: (credential as any).accessToken,
       accessTokenSecret: (credential as any).secret,
-    });
+    };
+
+    const { data } = await post<ApiResponse<ResponseablePatient>>(
+      "/reception",
+      payload
+    );
 
     return data.record;
   }

@@ -1,11 +1,8 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { Sentry } from "../sentry";
-import {
-  PatientInsuranceCard,
-  PatientRecord,
-} from "~/domains/authentication/models";
 import { DepartmentId } from "~/types/Department";
 import { DiseaseId } from "~/types/Disease";
+import { PatientInsuranceCard } from "~/types/PatientInsuranceCard";
 
 export const prisma = new PrismaClient();
 
@@ -178,7 +175,12 @@ export const createPatientDisease = (
 
 export const upsertPatientRecord = (
   patientId: string,
-  patientRecord: Omit<PatientRecord, "diseases">
+  patientRecord: {
+    id: string;
+    image: string;
+    name: string;
+    screenName: string;
+  }
 ) =>
   prisma.patientRecord.upsert({
     where: {

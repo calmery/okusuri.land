@@ -1,11 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import Twitter from "twitter";
-import {
-  PatientInsuranceCard,
-  PatientRecord,
-} from "~/domains/authentication/models";
-import { DepartmentId } from "~/types/Department";
-import { Patient } from "~/types/Patient";
+import { PatientInsuranceCard } from "~/types/PatientInsuranceCard";
+import { ResponseablePatient } from "~/types/Responseable";
+import { createResponseablePatient } from "~/utils/admin/api";
 import { verify } from "~/utils/admin/authentication";
 import { cors } from "~/utils/admin/cors";
 import {
@@ -19,7 +16,12 @@ import {
 const getPatientRecordFromTwitter = ({
   accessToken,
   accessTokenSecret,
-}: PatientInsuranceCard): Promise<PatientRecord> =>
+}: PatientInsuranceCard): Promise<{
+  id: string;
+  image: string;
+  name: string;
+  screenName: string;
+}> =>
   new Promise((resolve, reject) => {
     const twitter = new Twitter({
       consumer_key: process.env.TWITTER_API_KEY!,
@@ -44,6 +46,7 @@ const getPatientRecordFromTwitter = ({
 
 // CRUD
 
+/** { data: ResponseablePatient } */
 const get = async (request: VercelRequest, response: VercelResponse) => {
   const patientId = await verify(request);
 
@@ -52,29 +55,20 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
   }
 
   const patientRecord = await getPatientRecordByPatientId(patientId);
-  const patientDiseases = await getPatientDiseases(patientId);
 
   if (!patientRecord) {
     return response.status(404).end();
   }
 
-  const data: Patient = {
-    diseases: patientDiseases.map((patientDisease) => ({
-      createdAt: patientDisease.createdAt.toString(),
-      departmentId: patientDisease.departmentId as DepartmentId,
-      diseaseId: patientDisease.diseaseId,
-    })),
-    record: {
-      id: patientRecord.id,
-      image: patientRecord.image,
-      name: patientRecord.name,
-      screenName: patientRecord.screenName,
-    },
-  };
+  const data: ResponseablePatient = createResponseablePatient(
+    await getPatientDiseases(patientId),
+    patientRecord
+  );
 
   response.send({ data });
 };
 
+/** { data: ResponseablePatient } */
 const post = async (request: VercelRequest, response: VercelResponse) => {
   const patientId = await verify(request);
   const patientInsuranceCard = request.body as PatientInsuranceCard;
@@ -88,27 +82,28 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
     return response.status(400).end();
   }
 
-  const patientRecord = await getPatientRecordFromTwitter(patientInsuranceCard);
-  const patientDiseases = await getPatientDiseases(patientId);
+  if (
+    !(await transaction([
+      upsertPatient(patientId, patientInsuranceCard),
+      upsertPatientRecord(
+        patientId,
+        await getPatientRecordFromTwitter(patientInsuranceCard)
+      ),
+    ]))
+  ) {
+    return response.status(503).end();
+  }
 
-  await transaction([
-    upsertPatient(patientId, patientInsuranceCard),
-    upsertPatientRecord(patientId, patientRecord),
-  ]);
+  const patientRecord = await getPatientRecordByPatientId(patientId);
 
-  const data: Patient = {
-    diseases: patientDiseases.map((patientDisease) => ({
-      createdAt: patientDisease.createdAt.toString(),
-      departmentId: patientDisease.departmentId as DepartmentId,
-      diseaseId: patientDisease.diseaseId,
-    })),
-    record: {
-      id: patientRecord.id,
-      image: patientRecord.image,
-      name: patientRecord.name,
-      screenName: patientRecord.screenName,
-    },
-  };
+  if (!patientRecord) {
+    return response.status(503).end();
+  }
+
+  const data: ResponseablePatient = createResponseablePatient(
+    await getPatientDiseases(patientId),
+    patientRecord
+  );
 
   response.send({ data });
 };

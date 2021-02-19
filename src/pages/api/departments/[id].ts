@@ -1,6 +1,11 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { DepartmentId } from "~/types/Department";
 import { DiseaseId } from "~/types/Disease";
+import {
+  ResponseableDepartment,
+  ResponseablePrescription,
+} from "~/types/Responseable";
+import { convertDepartmentToResponseableDepartment } from "~/utils/admin/api";
 import { verify } from "~/utils/admin/authentication";
 import {
   getDepartment,
@@ -18,7 +23,7 @@ import {
   upsertPatientPhysicalCondition,
 } from "~/utils/admin/database";
 
-/** { data: Department | null } */
+/** { data: ResponseableDepartment } */
 const get = async (request: VercelRequest, response: VercelResponse) => {
   const departmentId = encodeURIComponent(
     request.query.id as string
@@ -28,12 +33,20 @@ const get = async (request: VercelRequest, response: VercelResponse) => {
     return response.status(404).end();
   }
 
-  response.send({
-    data: await getDepartment(departmentId),
-  });
+  const department = await getDepartment(departmentId);
+
+  if (!department) {
+    return response.status(503).end();
+  }
+
+  const data: ResponseableDepartment = convertDepartmentToResponseableDepartment(
+    department
+  );
+
+  response.send({ data });
 };
 
-/** { data: { prescription: { diseases: DiseaseId[] } } */
+/** { data: { prescription: ResponseablePrescription } */
 const post = async (request: VercelRequest, response: VercelResponse) => {
   /* Firebase で Token を検証、Patient の ID を取得する */
 
@@ -130,13 +143,13 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* */
 
-  response.send({
-    data: {
-      prescription: {
-        diseases: onsetDiseaseIds,
-      },
+  const data: ResponseablePrescription = {
+    prescription: {
+      diseases: onsetDiseaseIds,
     },
-  });
+  };
+
+  response.send({ data });
 };
 
 // Serverless Functions

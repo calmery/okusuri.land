@@ -1,11 +1,12 @@
 import { createReducer } from "@reduxjs/toolkit";
 import * as actions from "./actions";
-import { Token, PatientRecord } from "./models";
+import { Token } from "./models";
+import { ResponseablePatientRecord } from "~/types/Responseable";
 
 export type State = {
   isRefreshingProfile: boolean;
   isRefreshingToken: boolean;
-  profile: PatientRecord | null;
+  profile: ResponseablePatientRecord | null;
   token: Token | null;
 };
 
