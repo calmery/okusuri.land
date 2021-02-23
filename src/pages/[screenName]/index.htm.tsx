@@ -43,8 +43,7 @@ const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
     (event: React.MouseEvent) => {
       event.preventDefault();
       GA.shareMyPage(record.screenName);
-      location.href =
-        "http://twitter.com/share?url=${window.location.href}&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89";
+      location.href = `http://twitter.com/share?url=${window.location.href}&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89`;
     },
     [record.screenName]
   );
