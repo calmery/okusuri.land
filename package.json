@@ -57,7 +57,7 @@
     "lint": "run-s lint:eslint lint:prettier",
     "lint:eslint": "eslint --ext .ts --fix --ignore-path .gitignore .",
     "lint:prettier": "prettier --write .",
-    "watch": "next dev --port 8000"
+    "watch": "next dev --port 8080"
   },
   "version": "0.1.0"
 }
