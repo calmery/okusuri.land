@@ -1,6 +1,7 @@
 import { css, keyframes } from "@emotion/react";
 import Head from "next/head";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
 import { BlogSwitch } from "./BlogSwitch";
 import { Menu } from "./Menu";
 import html from "~/static/noneme.html";
@@ -54,24 +55,42 @@ const menu = css`
 export const Page: React.FC<{
   children?: React.ReactNode | string;
   title?: string;
-}> = ({ children, title }) => (
-  <>
-    <Head>
-      <title>{title ? `${title} / おくすりランド` : "おくすりランド"}</title>
-      <script src="/externals/130719tinkerbell-min.js"></script>
-    </Head>
-    <div css={container}>
-      <div css={menu}>
-        <Menu />
+}> = ({ children, title }) => {
+  const { push } = useRouter();
+
+  useEffect(() => {
+    const elements: HTMLAnchorElement[] = [].slice.call(
+      document.querySelectorAll("internal")
+    );
+
+    elements.forEach((a) => {
+      a.addEventListener("click", (event) => {
+        event.preventDefault();
+        const url = a.href;
+        push(url);
+      });
+    });
+  }, []);
+
+  return (
+    <>
+      <Head>
+        <title>{title ? `${title} / おくすりランド` : "おくすりランド"}</title>
+        <script src="/externals/130719tinkerbell-min.js"></script>
+      </Head>
+      <div css={container}>
+        <div css={menu}>
+          <Menu />
+        </div>
+        <div css={border} />
+        <div css={main}>
+          {typeof children === "string" && (
+            <div dangerouslySetInnerHTML={{ __html: html + children }} />
+          )}
+          {typeof children !== "string" && children}
+          <BlogSwitch />
+        </div>
       </div>
-      <div css={border} />
-      <div css={main}>
-        {typeof children === "string" && (
-          <div dangerouslySetInnerHTML={{ __html: html + children }} />
-        )}
-        {typeof children !== "string" && children}
-        <BlogSwitch />
-      </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
