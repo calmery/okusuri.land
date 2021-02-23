@@ -81,7 +81,13 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
 
   /* Department に存在する Symptoms を元に PhysicalCondition の値を更新する */
 
+  const updatedKeys: string[] = [];
+
   symptoms.forEach((symptom) => {
+    if (updatedKeys.includes(symptom.key)) {
+      return;
+    }
+
     let value = physicalCondition[symptom.key] || symptom.defaultValue;
 
     if (
@@ -89,6 +95,7 @@ const post = async (request: VercelRequest, response: VercelResponse) => {
       (force || Math.abs(currentSymptoms[symptom.key]) <= symptom.maximumChange)
     ) {
       value += currentSymptoms[symptom.key];
+      updatedKeys.push(symptom.key);
     }
 
     physicalCondition[symptom.key] = value;
