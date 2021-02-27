@@ -44,9 +44,13 @@ const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
         <a
           href={`http://twitter.com/share?text=${encodeURI(
             record.name
-          )}%E3%81%95%E3%82%93%E3%81%AE%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E6%89%8B%E5%B8%B3&url=${
-            window.location.href
-          }&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89`}
+          )}%E3%81%95%E3%82%93%E3%81%AE%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E6%89%8B%E5%B8%B3&url=${encodeURI(
+            `${
+              process.env.NODE_ENV === "production"
+                ? "https://okusuri.land"
+                : "http://localhost:8080"
+            }/~${record.screenName}/index.htm`
+          )}&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89`}
         >
           Twitterにシェアする
         </a>
