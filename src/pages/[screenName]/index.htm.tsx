@@ -6,7 +6,6 @@ import { actions, selectors } from "~/domains/authentication";
 import { useDepartments } from "~/hooks/useDepartments";
 import { ResponseableDisease, ResponseablePatient } from "~/types/Responseable";
 import { ApiResponse, get } from "~/utils/api";
-import * as GA from "~/utils/google-analytics";
 import { Sentry } from "~/utils/sentry";
 
 const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
@@ -39,17 +38,22 @@ const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
     dispatch(actions.logOut());
   }, []);
 
-  const handleClickTwitterShareButton = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault();
-      GA.shareMyPage(record.screenName);
-      location.href = `http://twitter.com/share?url=${window.location.href}&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89`;
-    },
-    [record.screenName]
-  );
-
   return (
     <Page title={`${record.name}さんのおくすり手帳`}>
+      <span style={{ fontSize: "x-large" }}>
+        <a
+          href={`http://twitter.com/share?text=${encodeURI(
+            record.name
+          )}%E3%81%95%E3%82%93%E3%81%AE%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E6%89%8B%E5%B8%B3&url=${
+            window.location.href
+          }&related=metanen0x0&hashtags=%E3%81%8A%E3%81%8F%E3%81%99%E3%82%8A%E3%83%A9%E3%83%B3%E3%83%89`}
+        >
+          Twitterにシェアする
+        </a>
+      </span>
+      <br />
+      <br />
+
       {myPatientRecord && myPatientRecord.screenName === record.screenName && (
         <>
           <span style={{ color: "crimson", fontSize: "large" }}>
@@ -57,13 +61,6 @@ const Patients: NextPage<ResponseablePatient> = ({ diseases, record }) => {
             <strong>★マイページ★</strong>
             <br />
           </span>
-          <span style={{ fontSize: "x-large" }}>
-            <a href="#" onClick={handleClickTwitterShareButton}>
-              Twitterにシェアする
-            </a>
-          </span>
-          <br />
-          <br />
           <a href="#" onClick={handleClickLogOutButton}>
             ログアウトする
           </a>

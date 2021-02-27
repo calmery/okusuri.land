@@ -37,9 +37,3 @@ export const changeRoute = (url: string) => {
     send_to: GOOGLE_ANALYTICS_ID,
   });
 };
-
-export const shareMyPage = (screenName: string) =>
-  sendEvent("share", {
-    category: "mypage",
-    label: screenName,
-  });
