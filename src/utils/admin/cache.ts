@@ -4,6 +4,8 @@ const client = redis.createClient({
   url: process.env.REDIS_URL!,
 });
 
+client.on("error", console.error);
+
 export const get = (key: string): Promise<string | null> =>
   new Promise((resolve, reject) =>
     client.get(key, (error, value) => {
