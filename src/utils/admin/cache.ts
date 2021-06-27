@@ -1,47 +1,52 @@
-import redis from "redis";
+// import redis from "redis";
 
-const client = redis.createClient({
-  url: process.env.REDIS_URL!,
-});
+// const client = redis.createClient({
+//   url: process.env.REDIS_URL!,
+// });
 
-client.on("error", console.error);
+// client.on("error", console.error);
 
-export const get = (key: string): Promise<string | null> =>
-  new Promise((resolve, reject) =>
-    client.get(key, (error, value) => {
-      if (error) {
-        return reject(error);
-      }
+export const get = (_: string): Promise<string | null> =>
+  new Promise(
+    (_, reject) => reject()
+    // client.get(key, (error, value) => {
+    //   if (error) {
+    //     return reject(error);
+    //   }
 
-      return resolve(value);
-    })
+    //   return resolve(value);
+    // })
   );
 
 export const key = (...keys: string[]): string => keys.join("_");
 
-export const set = (key: string, value: any): Promise<string> =>
-  new Promise((resolve, reject) => {
+export const set = (_: string, value: any): Promise<string> =>
+  new Promise((resolve, _) => {
     const newValue = JSON.stringify(value);
 
-    client.set(key, newValue, "EX", 3600, (error) => {
-      if (error) {
-        return reject(error);
-      }
+    // client.set(key, newValue, "EX", 3600, (error) => {
+    //   if (error) {
+    //     return reject(error);
+    //   }
 
-      return resolve(newValue);
-    });
+    //   return resolve(newValue);
+    // });
+
+    return resolve(newValue);
   });
 
-export const setnx = async (key: string, fetcher: () => Promise<any>) => {
-  if (process.env.NODE_ENV !== "production") {
-    return JSON.stringify(await fetcher());
-  }
+export const setnx = async (_: string, fetcher: () => Promise<any>) => {
+  return JSON.stringify(await fetcher());
 
-  const value = await get(key);
+  // if (process.env.NODE_ENV !== "production") {
+  //   return JSON.stringify(await fetcher());
+  // }
 
-  if (value) {
-    return value;
-  }
+  // const value = await get(key);
 
-  return set(key, await fetcher());
+  // if (value) {
+  //   return value;
+  // }
+
+  // return set(key, await fetcher());
 };
